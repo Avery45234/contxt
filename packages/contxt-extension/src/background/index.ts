@@ -1,24 +1,18 @@
-import { Publisher, ContentScriptMessage, UiMessage, TabContextResponse, ContentAnalysisResult } from '../lib/types';
-
-// --- Main Initialization Function ---
+import { Publisher, ContentScriptMessage, UiRequestMessage, TabContextResponse, ContentAnalysisResult, UiUpdateMessage } from '../lib/types';
 
 async function main() {
-    // Load publisher data first and wait for it to complete.
     const publishers: Publisher[] = await fetch(chrome.runtime.getURL('publishers.json'))
         .then((response) => response.json())
         .catch((error) => {
-            console.error('[contxt] CRITICAL: Failed to load publisher data. Extension cannot function.', error);
+            console.error('[contxt] CRITICAL: Failed to load publisher data.', error);
             return [];
         });
 
-    if (publishers.length === 0) {
-        return; // Stop execution if data failed to load
-    }
+    if (publishers.length === 0) return;
     console.log(`[contxt] Publisher data loaded successfully. Found ${publishers.length} publishers.`);
 
     const tabContextCache = new Map<number, TabContextResponse>();
 
-    // --- Helper Functions ---
     function getIconPaths(biasRating: string): chrome.action.TabIconDetails {
         const rating = biasRating.toLowerCase().replace(' ', '-');
         const pathPrefix = `icons/icon-`;
@@ -27,7 +21,6 @@ async function main() {
         return { path: { '16': `${pathPrefix}16${pathSuffix}` || defaultPath, '24': `${pathPrefix}24${pathSuffix}` || defaultPath, '48': `${pathPrefix}48${pathSuffix}` || defaultPath, '128': `${pathPrefix}128${pathSuffix}` || defaultPath } };
     }
 
-    // --- Core Logic ---
     async function updateAction(tabId: number, contentInfo: ContentAnalysisResult) {
         const tab = await chrome.tabs.get(tabId);
         if (!tab.url) return;
@@ -35,12 +28,7 @@ async function main() {
         try {
             const url = new URL(tab.url);
             const hostname = url.hostname;
-
-            // --- THE FIX: A more robust matching logic ---
-            const publisher = publishers.find(
-                (p) => hostname === p.domain || hostname.endsWith(`.${p.domain}`)
-            );
-            // --- END FIX ---
+            const publisher = publishers.find((p) => hostname === p.domain || hostname.endsWith(`.${p.domain}`));
 
             console.log(`[contxt] Analyzing Tab ${tabId}: Hostname=${hostname}, Found Publisher=${publisher?.displayName ?? 'None'}`);
 
@@ -64,7 +52,7 @@ async function main() {
     }
 
     // --- Event Listeners ---
-    chrome.runtime.onMessage.addListener((message: ContentScriptMessage | UiMessage, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener((message: ContentScriptMessage | UiRequestMessage, sender, sendResponse) => {
         if (message.type === 'CONTENT_ANALYSIS_RESULT' && sender.tab?.id) {
             updateAction(sender.tab.id, message.payload);
             return;
@@ -75,7 +63,6 @@ async function main() {
                 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
                 if (tab?.id) {
                     const context = tabContextCache.get(tab.id);
-                    console.log(`[contxt] UI requested context for Tab ${tab.id}. Found:`, context);
                     sendResponse(context);
                 } else {
                     sendResponse(undefined);
@@ -83,6 +70,16 @@ async function main() {
             })();
             return true;
         }
+    });
+
+    // --- THE KEY FIX: Proactively push updates to the UI on tab switch ---
+    chrome.tabs.onActivated.addListener(async (activeInfo) => {
+        const context = tabContextCache.get(activeInfo.tabId);
+        const message: UiUpdateMessage = {
+            type: 'CONTEXT_UPDATED',
+            payload: context ?? {}, // Send empty object if no context is cached yet
+        };
+        await chrome.runtime.sendMessage(message);
     });
 
     chrome.action.onClicked.addListener(async (tab) => {
@@ -98,5 +95,4 @@ async function main() {
     console.log('[contxt] Background script initialized and listeners attached.');
 }
 
-// Run the main initialization function.
 main();

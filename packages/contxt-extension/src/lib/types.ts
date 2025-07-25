@@ -32,12 +32,18 @@ export interface ContentScriptMessage {
     payload: ContentAnalysisResult;
 }
 
-// Message from UI to Background
-export interface UiMessage {
+// Message from UI to Background (Requesting data)
+export interface UiRequestMessage {
     type: 'GET_CURRENT_TAB_CONTEXT';
 }
 
-// Response from Background to UI
+// Message from Background to UI (Pushing updates)
+export interface UiUpdateMessage {
+    type: 'CONTEXT_UPDATED';
+    payload: TabContextResponse;
+}
+
+// Response from Background to UI for the initial request
 export interface TabContextResponse {
     publisher?: Publisher;
     content?: ContentAnalysisResult;

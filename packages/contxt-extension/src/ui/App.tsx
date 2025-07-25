@@ -1,24 +1,43 @@
 import { FC, useEffect, useState } from 'react';
-import { Publisher, TabContextResponse, UiMessage } from '../lib/types';
+import { Publisher, TabContextResponse, UiRequestMessage, UiUpdateMessage } from '../lib/types';
 
 const App: FC = () => {
     const [publisher, setPublisher] = useState<Publisher | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchContext = async () => {
+        // This function handles updating the UI state from a context payload
+        const handleContextUpdate = (context: TabContextResponse | undefined) => {
+            setPublisher(context?.publisher);
+        };
+
+        // --- Set up a listener for proactive updates from the background script ---
+        const messageListener = (message: UiUpdateMessage) => {
+            if (message.type === 'CONTEXT_UPDATED') {
+                handleContextUpdate(message.payload);
+            }
+        };
+        chrome.runtime.onMessage.addListener(messageListener);
+
+        // --- Request the initial context for the current tab when the panel first opens ---
+        const fetchInitialContext = async () => {
             try {
-                const message: UiMessage = { type: 'GET_CURRENT_TAB_CONTEXT' };
+                const message: UiRequestMessage = { type: 'GET_CURRENT_TAB_CONTEXT' };
                 const response: TabContextResponse | undefined = await chrome.runtime.sendMessage(message);
-                setPublisher(response?.publisher);
+                handleContextUpdate(response);
             } catch (e) {
-                console.error('Error fetching context:', e);
+                console.error('Error fetching initial context:', e);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchContext();
+        fetchInitialContext();
+
+        // --- Cleanup: Remove the listener when the component unmounts ---
+        return () => {
+            chrome.runtime.onMessage.removeListener(messageListener);
+        };
     }, []);
 
     if (isLoading) {
