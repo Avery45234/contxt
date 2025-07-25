@@ -20,7 +20,8 @@
       ],
       "js": [
         "src/content/index.ts"
-      ]
+      ],
+      "run_at": "document_end"
     }
   ],
   "action": {

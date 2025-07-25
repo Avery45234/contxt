@@ -7,13 +7,10 @@ console.log('%c[contxt-content] Script Injected.', LOG_STYLE);
 
 function analyzePage(): void {
     try {
-        console.log('%c[contxt-content] Analyzing page content...', LOG_STYLE);
+        console.log('%c[contxt-content] DOM content loaded. Analyzing page...', LOG_STYLE);
 
-        // --- THE FIX ---
-        // Instead of cloning the live document, parse its body's HTML into a new, clean document.
         const parser = new DOMParser();
         const doc = parser.parseFromString(document.body.innerHTML, 'text/html');
-        // --- END FIX ---
 
         const reader = new Readability(doc);
         const article = reader.parse();
@@ -34,9 +31,10 @@ function analyzePage(): void {
     }
 }
 
-// Run the analysis once the page is fully loaded
-if (document.readyState === 'complete') {
+// Run analysis as soon as the DOM is ready, which is much faster than 'load'.
+// The 'loading' check handles cases where the script is injected after the event has already fired.
+if (document.readyState !== 'loading') {
     analyzePage();
 } else {
-    window.addEventListener('load', analyzePage);
+    document.addEventListener('DOMContentLoaded', analyzePage);
 }
