@@ -18,3 +18,27 @@ export interface Publisher {
     allsidesBias: AllSidesBias;
     mbfc: MbfcData;
 }
+
+// --- Messaging Types ---
+
+export interface ContentAnalysisResult {
+    hasArticle: boolean;
+    headline?: string;
+}
+
+// Message from Content Script to Background
+export interface ContentScriptMessage {
+    type: 'CONTENT_ANALYSIS_RESULT';
+    payload: ContentAnalysisResult;
+}
+
+// Message from UI to Background
+export interface UiMessage {
+    type: 'GET_CURRENT_TAB_CONTEXT';
+}
+
+// Response from Background to UI
+export interface TabContextResponse {
+    publisher?: Publisher;
+    content?: ContentAnalysisResult;
+}

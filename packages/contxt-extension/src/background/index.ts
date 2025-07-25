@@ -1,111 +1,103 @@
-import { Publisher } from '../lib/types';
+import { Publisher, ContentScriptMessage, UiMessage, TabContextResponse, ContentAnalysisResult } from '../lib/types';
 
-// Load the publisher data from the JSON file
-let publishers: Publisher[] = [];
-fetch(chrome.runtime.getURL('publishers.json'))
-    .then((response) => response.json())
-    .then((data: Publisher[]) => {
-        publishers = data;
-        console.log('Publisher data loaded successfully.');
-    })
-    .catch((error) => console.error('Error loading publisher data:', error));
+// --- Main Initialization Function ---
 
-// --- Badge Color Logic ---
+async function main() {
+    // Load publisher data first and wait for it to complete.
+    const publishers: Publisher[] = await fetch(chrome.runtime.getURL('publishers.json'))
+        .then((response) => response.json())
+        .catch((error) => {
+            console.error('[contxt] CRITICAL: Failed to load publisher data. Extension cannot function.', error);
+            return [];
+        });
 
-const COLOR_BLUE = '#007bff';   // Solid Blue for Left
-const COLOR_PURPLE = '#c8a2c8'; // Light Purple for Center
-const COLOR_RED = '#dc3545';    // Solid Red for Right
-
-/**
- * Linearly interpolates between two colors.
- * @param color1 - Start color in hex.
- * @param color2 - End color in hex.
- * @param factor - A value from 0 to 1.
- * @returns A hex color string.
- */
-function interpolateColor(color1: string, color2: string, factor: number): string {
-    const r1 = parseInt(color1.substring(1, 3), 16);
-    const g1 = parseInt(color1.substring(3, 5), 16);
-    const b1 = parseInt(color1.substring(5, 7), 16);
-
-    const r2 = parseInt(color2.substring(1, 3), 16);
-    const g2 = parseInt(color2.substring(3, 5), 16);
-    const b2 = parseInt(color2.substring(5, 7), 16);
-
-    const r = Math.round(r1 + factor * (r2 - r1));
-    const g = Math.round(g1 + factor * (g2 - g1));
-    const b = Math.round(b1 + factor * (b2 - b1));
-
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-}
-
-/**
- * Calculates the badge color based on the AllSides bias value.
- * @param biasValue - The numerical bias rating.
- * @returns A hex color string.
- */
-function getBadgeColor(biasValue: number): string {
-    if (biasValue <= -3.0) return COLOR_BLUE;
-    if (biasValue >= 3.0) return COLOR_RED;
-
-    if (biasValue < 0) {
-        // Interpolate from Blue (-3) to Purple (0)
-        const factor = biasValue / -3.0;
-        return interpolateColor(COLOR_BLUE, COLOR_PURPLE, factor);
-    } else {
-        // Interpolate from Purple (0) to Red (3)
-        const factor = biasValue / 3.0;
-        return interpolateColor(COLOR_PURPLE, COLOR_RED, factor);
+    if (publishers.length === 0) {
+        return; // Stop execution if data failed to load
     }
-}
+    console.log(`[contxt] Publisher data loaded successfully. Found ${publishers.length} publishers.`);
 
-// --- Tab and Action Management ---
+    const tabContextCache = new Map<number, TabContextResponse>();
 
-/**
- * Updates the extension's icon (badge) for a given tab.
- */
-async function updateAction(tabId: number) {
-    const tab = await chrome.tabs.get(tabId);
-    if (!tab.url) return;
+    // --- Helper Functions ---
+    function getIconPaths(biasRating: string): chrome.action.TabIconDetails {
+        const rating = biasRating.toLowerCase().replace(' ', '-');
+        const pathPrefix = `icons/icon-`;
+        const pathSuffix = `-${rating}.png`;
+        const defaultPath = `${pathPrefix}128-unknown.png`;
+        return { path: { '16': `${pathPrefix}16${pathSuffix}` || defaultPath, '24': `${pathPrefix}24${pathSuffix}` || defaultPath, '48': `${pathPrefix}48${pathSuffix}` || defaultPath, '128': `${pathPrefix}128${pathSuffix}` || defaultPath } };
+    }
+    function getRootDomain(hostname: string): string {
+        const parts = hostname.split('.');
+        if (parts.length <= 2) return hostname;
+        if (parts.length > 2 && (parts[parts.length - 2] === 'co' || parts[parts.length - 2] === 'com')) return parts.slice(-3).join('.');
+        return parts.slice(-2).join('.');
+    }
 
-    try {
-        const url = new URL(tab.url);
-        const domain = url.hostname.replace(/^www\./, '');
-        const publisher = publishers.find((p) => p.domain === domain);
+    // --- Core Logic ---
+    async function updateAction(tabId: number, contentInfo: ContentAnalysisResult) {
+        const tab = await chrome.tabs.get(tabId);
+        if (!tab.url) return;
 
-        if (publisher) {
-            const biasValue = publisher.allsidesBias.value;
-            const color = getBadgeColor(biasValue);
+        try {
+            const url = new URL(tab.url);
+            const rootDomain = getRootDomain(url.hostname);
+            const publisher = publishers.find((p) => p.domain === rootDomain);
 
-            await chrome.action.setBadgeBackgroundColor({ tabId, color });
-            await chrome.action.setBadgeText({ tabId, text: '1' }); // Placeholder '1' for now
-        } else {
-            await chrome.action.setBadgeText({ tabId, text: '' });
+            console.log(`[contxt] Analyzing Tab ${tabId}: URL=${tab.url}, Domain=${rootDomain}, Found Publisher=${publisher?.displayName ?? 'None'}`);
+
+            tabContextCache.set(tabId, { publisher, content: contentInfo });
+
+            if (publisher) {
+                const iconDetails = getIconPaths(publisher.allsidesBias.rating);
+                await chrome.action.setIcon({ tabId, ...iconDetails });
+                const badgeText = contentInfo.hasArticle ? '1' : '';
+                await chrome.action.setBadgeText({ tabId, text: badgeText });
+                await chrome.action.setBadgeBackgroundColor({ tabId, color: '#FFFFFF' });
+                await chrome.action.setBadgeTextColor({ tabId, color: '#000000' });
+            } else {
+                const unknownIcon = getIconPaths('unknown');
+                await chrome.action.setIcon({ tabId, ...unknownIcon });
+                await chrome.action.setBadgeText({ tabId, text: '' });
+            }
+        } catch (e) {
+            console.error('[contxt] Error in updateAction:', e);
         }
-    } catch (e) {
-        // Invalid URL, probably a chrome:// page
-        await chrome.action.setBadgeText({ tabId, text: '' });
     }
+
+    // --- Event Listeners ---
+    chrome.runtime.onMessage.addListener((message: ContentScriptMessage | UiMessage, sender, sendResponse) => {
+        if (message.type === 'CONTENT_ANALYSIS_RESULT' && sender.tab?.id) {
+            updateAction(sender.tab.id, message.payload);
+            return;
+        }
+
+        if (message.type === 'GET_CURRENT_TAB_CONTEXT') {
+            (async () => {
+                const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                if (tab?.id) {
+                    const context = tabContextCache.get(tab.id);
+                    console.log(`[contxt] UI requested context for Tab ${tab.id}. Found:`, context);
+                    sendResponse(context);
+                } else {
+                    sendResponse(undefined);
+                }
+            })();
+            return true;
+        }
+    });
+
+    chrome.action.onClicked.addListener(async (tab) => {
+        if (tab.id) {
+            await chrome.sidePanel.open({ tabId: tab.id });
+        }
+    });
+
+    chrome.tabs.onRemoved.addListener((tabId) => {
+        tabContextCache.delete(tabId);
+    });
+
+    console.log('[contxt] Background script initialized and listeners attached.');
 }
 
-// Update the icon when a tab is updated (e.g., new URL loaded)
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-    // We only care when the URL changes.
-    if (changeInfo.url) {
-        updateAction(tabId);
-    }
-});
-
-// Update the icon when the user switches to a different tab
-chrome.tabs.onActivated.addListener((activeInfo) => {
-    updateAction(activeInfo.tabId);
-});
-
-// Open the side panel when the extension icon is clicked
-chrome.action.onClicked.addListener(async (tab) => {
-    if (tab.id) {
-        await chrome.sidePanel.open({ tabId: tab.id });
-    }
-});
-
-console.log('contxt background script loaded and listeners attached.');
+// Run the main initialization function.
+main();
