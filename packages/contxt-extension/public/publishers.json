@@ -1,0 +1,28 @@
+[
+  {
+    "domain": "apnews.com",
+    "displayName": "Associated Press",
+    "allsidesBias": "Center",
+    "mbfc": {
+      "bias": "Least Biased",
+      "factualReporting": "Very High",
+      "credibility": "High Credibility",
+      "traffic": "Very High Traffic",
+      "mediaType": "News Agency",
+      "country": "USA"
+    }
+  },
+  {
+    "domain": "nytimes.com",
+    "displayName": "The New York Times",
+    "allsidesBias": "Lean Left",
+    "mbfc": {
+      "bias": "Left-Center",
+      "factualReporting": "High",
+      "credibility": "High Credibility",
+      "traffic": "Very High Traffic",
+      "mediaType": "Newspaper",
+      "country": "USA"
+    }
+  }
+]
