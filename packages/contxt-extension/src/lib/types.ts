@@ -1,5 +1,20 @@
-// Placeholder for our shared types
+export interface AllSidesBias {
+    rating: string;
+    value: number;
+}
+
+export interface MbfcData {
+    bias: string;
+    factualReporting: string;
+    credibility: string;
+    traffic: string;
+    mediaType: string;
+    country: string;
+}
+
 export interface Publisher {
     domain: string;
-    // ... more properties to be added here
+    displayName: string;
+    allsidesBias: AllSidesBias;
+    mbfc: MbfcData;
 }
