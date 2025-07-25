@@ -26,12 +26,6 @@ async function main() {
         const defaultPath = `${pathPrefix}128-unknown.png`;
         return { path: { '16': `${pathPrefix}16${pathSuffix}` || defaultPath, '24': `${pathPrefix}24${pathSuffix}` || defaultPath, '48': `${pathPrefix}48${pathSuffix}` || defaultPath, '128': `${pathPrefix}128${pathSuffix}` || defaultPath } };
     }
-    function getRootDomain(hostname: string): string {
-        const parts = hostname.split('.');
-        if (parts.length <= 2) return hostname;
-        if (parts.length > 2 && (parts[parts.length - 2] === 'co' || parts[parts.length - 2] === 'com')) return parts.slice(-3).join('.');
-        return parts.slice(-2).join('.');
-    }
 
     // --- Core Logic ---
     async function updateAction(tabId: number, contentInfo: ContentAnalysisResult) {
@@ -40,10 +34,15 @@ async function main() {
 
         try {
             const url = new URL(tab.url);
-            const rootDomain = getRootDomain(url.hostname);
-            const publisher = publishers.find((p) => p.domain === rootDomain);
+            const hostname = url.hostname;
 
-            console.log(`[contxt] Analyzing Tab ${tabId}: URL=${tab.url}, Domain=${rootDomain}, Found Publisher=${publisher?.displayName ?? 'None'}`);
+            // --- THE FIX: A more robust matching logic ---
+            const publisher = publishers.find(
+                (p) => hostname === p.domain || hostname.endsWith(`.${p.domain}`)
+            );
+            // --- END FIX ---
+
+            console.log(`[contxt] Analyzing Tab ${tabId}: Hostname=${hostname}, Found Publisher=${publisher?.displayName ?? 'None'}`);
 
             tabContextCache.set(tabId, { publisher, content: contentInfo });
 
