@@ -3,18 +3,14 @@ import react from '@vitejs/plugin-react';
 import { crx } from '@crxjs/vite-plugin';
 import manifest from './public/manifest.json';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [
-        react(),
-        crx({ manifest }),
-    ],
+    plugins: [react(), crx({ manifest })],
+    optimizeDeps: {
+        exclude: ['@mui/icons-material'],
+    },
     build: {
-        rollupOptions: {
-            input: {
-                sidebar: 'src/ui/sidebar.html',
-                devtools: 'public/devtools.html', // Add the new entry point
-            },
+        commonjsOptions: {
+            include: [/node_modules/],
         },
     },
 });

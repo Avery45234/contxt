@@ -1,5 +1,5 @@
 import { Readability } from '@mozilla/readability';
-import { ContentScriptMessage } from '../lib/types';
+import { ContentScriptMessage } from '../lib/types.js';
 
 const LOG_STYLE = 'background: #28a745; color: #ffffff; font-size: 14px; font-weight: bold; padding: 2px 5px; border-radius: 3px;';
 
@@ -31,8 +31,6 @@ function analyzePage(): void {
     }
 }
 
-// Run analysis as soon as the DOM is ready, which is much faster than 'load'.
-// The 'loading' check handles cases where the script is injected after the event has already fired.
 if (document.readyState !== 'loading') {
     analyzePage();
 } else {

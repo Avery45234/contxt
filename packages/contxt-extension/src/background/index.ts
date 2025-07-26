@@ -1,4 +1,4 @@
-import { Publisher, ContentScriptMessage, UiRequestMessage, TabContextResponse, UiUpdateMessage } from '../lib/types';
+import { Publisher, ContentScriptMessage, UiRequestMessage, TabContextResponse, UiUpdateMessage } from '../lib/types.js';
 
 async function main() {
     const publishers: Publisher[] = await fetch(chrome.runtime.getURL('publishers.json'))
@@ -30,11 +30,10 @@ async function main() {
         try {
             await chrome.runtime.sendMessage(message);
         } catch (e) {
-            // It's safe to ignore errors here, as they likely mean no UI is open to receive the message.
+            // This can happen if the side panel is not open. It's safe to ignore.
         }
     }
 
-    // --- The Single Source of Truth for State Updates ---
     async function handleStateUpdate(tabId: number, url: string, contentInfo?: any) {
         const hostname = new URL(url).hostname;
         const publisher = publishers.find((p) => hostname === p.domain || hostname.endsWith(`.${p.domain}`));
@@ -49,7 +48,6 @@ async function main() {
 
         console.log(`[contxt] State updated for Tab ${tabId}:`, newContext);
 
-        // Update Icon and Badge
         if (publisher) {
             await chrome.action.setIcon({ tabId, ...getIconPaths(publisher.allsidesBias.rating) });
             const badgeText = newContext.content?.hasArticle ? '1' : '';
@@ -61,13 +59,9 @@ async function main() {
             await chrome.action.setBadgeText({ tabId, text: '' });
         }
 
-        // Broadcast the update to all UIs
         await sendContextUpdate(tabId);
     }
 
-    // --- Event Listeners ---
-
-    // The content script is now the primary trigger for updates.
     chrome.runtime.onMessage.addListener((message: ContentScriptMessage | UiRequestMessage, sender, sendResponse) => {
         if (message.type === 'CONTENT_ANALYSIS_RESULT' && sender.tab?.id && sender.tab.url) {
             handleStateUpdate(sender.tab.id, sender.tab.url, message.payload);
@@ -87,7 +81,6 @@ async function main() {
         }
     });
 
-    // When a user switches tabs, just send the cached context for that tab.
     chrome.tabs.onActivated.addListener(async (activeInfo) => {
         await sendContextUpdate(activeInfo.tabId);
     });

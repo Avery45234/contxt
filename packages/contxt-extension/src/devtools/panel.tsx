@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { TabContextResponse, UiUpdateMessage } from '../lib/types';
+import { TabContextResponse, UiUpdateMessage } from '../lib/types.js';
 
 const Panel: FC = () => {
     const [context, setContext] = useState<TabContextResponse | undefined>(undefined);

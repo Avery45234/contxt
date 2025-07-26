@@ -1,17 +1,27 @@
 import { FC, useEffect, useState } from 'react';
-import { Publisher, TabContextResponse, UiRequestMessage, UiUpdateMessage } from '../lib/types';
+import { Box, CssBaseline, Link, Stack, ThemeProvider, Typography, createTheme } from '@mui/material';
+import { TabContextResponse, UiRequestMessage, UiUpdateMessage } from '../lib/types.js';
+import PublisherProfile from './components/PublisherProfile.jsx';
+import StoryAnalysis from './components/StoryAnalysis.jsx';
+
+const theme = createTheme({
+    palette: {
+        mode: 'light',
+        background: {
+            default: '#f4f5f7',
+        },
+    },
+});
 
 const App: FC = () => {
-    const [publisher, setPublisher] = useState<Publisher | undefined>(undefined);
+    const [context, setContext] = useState<TabContextResponse | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // This function handles updating the UI state from a context payload
-        const handleContextUpdate = (context: TabContextResponse | undefined) => {
-            setPublisher(context?.publisher);
+        const handleContextUpdate = (newContext: TabContextResponse | undefined) => {
+            setContext(newContext);
         };
 
-        // --- Set up a listener for proactive updates from the background script ---
         const messageListener = (message: UiUpdateMessage) => {
             if (message.type === 'CONTEXT_UPDATED') {
                 handleContextUpdate(message.payload);
@@ -19,7 +29,6 @@ const App: FC = () => {
         };
         chrome.runtime.onMessage.addListener(messageListener);
 
-        // --- Request the initial context for the current tab when the panel first opens ---
         const fetchInitialContext = async () => {
             try {
                 const message: UiRequestMessage = { type: 'GET_CURRENT_TAB_CONTEXT' };
@@ -34,31 +43,49 @@ const App: FC = () => {
 
         fetchInitialContext();
 
-        // --- Cleanup: Remove the listener when the component unmounts ---
         return () => {
             chrome.runtime.onMessage.removeListener(messageListener);
         };
     }, []);
 
-    if (isLoading) {
-        return <div>Loading context...</div>;
-    }
-
     return (
-        <div>
-            <h1>contxt</h1>
-            {publisher ? (
-                <div>
-                    <h2>Publisher Found:</h2>
-                    <p>{publisher.displayName}</p>
-                </div>
-            ) : (
-                <div>
-                    <h2>Publisher Not Found</h2>
-                    <p>This site is not currently in the contxt database.</p>
-                </div>
-            )}
-        </div>
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '380px',
+                    height: '580px',
+                    overflow: 'hidden',
+                }}
+            >
+                <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+                    <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+                        contxt
+                    </Typography>
+                </Box>
+
+                <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2 }}>
+                    {isLoading ? (
+                        <Typography>Loading context...</Typography>
+                    ) : (
+                        <Stack spacing={2}>
+                            <PublisherProfile publisher={context?.publisher} />
+                            <StoryAnalysis content={context?.content} />
+                        </Stack>
+                    )}
+                </Box>
+
+                <Box sx={{ p: 1, borderTop: 1, borderColor: 'divider', textAlign: 'center' }}>
+                    <Typography variant="caption" color="text.secondary">
+                        Disclaimer. Ratings from{' '}
+                        <Link href="https://www.allsides.com/" target="_blank" rel="noopener">AllSides</Link> &{' '}
+                        <Link href="https://mediabiasfactcheck.com/" target="_blank" rel="noopener">MBFC</Link>.
+                    </Typography>
+                </Box>
+            </Box>
+        </ThemeProvider>
     );
 };
 
