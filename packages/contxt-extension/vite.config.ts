@@ -9,11 +9,11 @@ export default defineConfig({
         react(),
         crx({ manifest }),
     ],
-    // This is required to ensure that the content script can access the static publishers.json
     build: {
         rollupOptions: {
             input: {
                 sidebar: 'src/ui/sidebar.html',
+                devtools: 'public/devtools.html', // Add the new entry point
             },
         },
     },

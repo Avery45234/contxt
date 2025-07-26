@@ -21,7 +21,6 @@ async function main() {
         return { path: { '16': `${pathPrefix}16${pathSuffix}` || defaultPath, '24': `${pathPrefix}24${pathSuffix}` || defaultPath, '48': `${pathPrefix}48${pathSuffix}` || defaultPath, '128': `${pathPrefix}128${pathSuffix}` || defaultPath } };
     }
 
-    // --- New Helper to Push Updates to UI ---
     async function sendContextUpdate(tabId: number) {
         const context = tabContextCache.get(tabId);
         const message: UiUpdateMessage = {
@@ -31,60 +30,47 @@ async function main() {
         try {
             await chrome.runtime.sendMessage(message);
         } catch (e) {
-            // This can happen if the side panel is not open. It's safe to ignore.
+            // It's safe to ignore errors here, as they likely mean no UI is open to receive the message.
         }
+    }
+
+    // --- The Single Source of Truth for State Updates ---
+    async function handleStateUpdate(tabId: number, url: string, contentInfo?: any) {
+        const hostname = new URL(url).hostname;
+        const publisher = publishers.find((p) => hostname === p.domain || hostname.endsWith(`.${p.domain}`));
+
+        const currentContext = tabContextCache.get(tabId) ?? {};
+        const newContext: TabContextResponse = {
+            ...currentContext,
+            publisher,
+            content: contentInfo ?? currentContext.content,
+        };
+        tabContextCache.set(tabId, newContext);
+
+        console.log(`[contxt] State updated for Tab ${tabId}:`, newContext);
+
+        // Update Icon and Badge
+        if (publisher) {
+            await chrome.action.setIcon({ tabId, ...getIconPaths(publisher.allsidesBias.rating) });
+            const badgeText = newContext.content?.hasArticle ? '1' : '';
+            await chrome.action.setBadgeText({ tabId, text: badgeText });
+            await chrome.action.setBadgeBackgroundColor({ tabId, color: '#FFFFFF' });
+            await chrome.action.setBadgeTextColor({ tabId, color: '#000000' });
+        } else {
+            await chrome.action.setIcon({ tabId, ...getIconPaths('unknown') });
+            await chrome.action.setBadgeText({ tabId, text: '' });
+        }
+
+        // Broadcast the update to all UIs
+        await sendContextUpdate(tabId);
     }
 
     // --- Event Listeners ---
 
-    // Phase 1: Instant Publisher Analysis on URL change
-    chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
-        if (changeInfo.url) {
-            try {
-                const url = new URL(changeInfo.url);
-                const hostname = url.hostname;
-                const publisher = publishers.find((p) => hostname === p.domain || hostname.endsWith(`.${p.domain}`));
-
-                // Store initial context (publisher only)
-                tabContextCache.set(tabId, { publisher });
-
-                console.log(`[contxt] Phase 1 (URL): Hostname=${hostname}, Found Publisher=${publisher?.displayName ?? 'None'}`);
-
-                if (publisher) {
-                    await chrome.action.setIcon({ tabId, ...getIconPaths(publisher.allsidesBias.rating) });
-                } else {
-                    await chrome.action.setIcon({ tabId, ...getIconPaths('unknown') });
-                }
-                // Proactively update the UI with publisher info
-                await sendContextUpdate(tabId);
-
-            } catch (e) {
-                // Invalid URL, ignore.
-            }
-        }
-    });
-
-    // Phase 2: Story Analysis result from Content Script
+    // The content script is now the primary trigger for updates.
     chrome.runtime.onMessage.addListener((message: ContentScriptMessage | UiRequestMessage, sender, sendResponse) => {
-        if (message.type === 'CONTENT_ANALYSIS_RESULT' && sender.tab?.id) {
-            const tabId = sender.tab.id;
-            const contentInfo = message.payload;
-
-            // Get existing context and add story info to it
-            const currentContext = tabContextCache.get(tabId) ?? {};
-            const newContext: TabContextResponse = { ...currentContext, content: contentInfo };
-            tabContextCache.set(tabId, newContext);
-
-            console.log(`[contxt] Phase 2 (Content): Received story analysis for Tab ${tabId}. Has Article: ${contentInfo.hasArticle}`);
-
-            // Update badge based on story info
-            const badgeText = contentInfo.hasArticle ? '1' : '';
-            chrome.action.setBadgeText({ tabId, text: badgeText });
-            chrome.action.setBadgeBackgroundColor({ tabId, color: '#FFFFFF' });
-            chrome.action.setBadgeTextColor({ tabId, color: '#000000' });
-
-            // Proactively update the UI with the complete context
-            sendContextUpdate(tabId);
+        if (message.type === 'CONTENT_ANALYSIS_RESULT' && sender.tab?.id && sender.tab.url) {
+            handleStateUpdate(sender.tab.id, sender.tab.url, message.payload);
             return;
         }
 
@@ -101,7 +87,7 @@ async function main() {
         }
     });
 
-    // Update UI when user switches tabs
+    // When a user switches tabs, just send the cached context for that tab.
     chrome.tabs.onActivated.addListener(async (activeInfo) => {
         await sendContextUpdate(activeInfo.tabId);
     });
