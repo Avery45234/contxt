@@ -6,10 +6,14 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    // 👇 Add this override to fix the import resolution
     "moduleResolution": "node",
-    "module": "esnext"
+    "module": "esnext",
+    "types": ["chrome", "vite/client"]
   },
-  "include": ["src", "src/ui", "vite.config.ts"],
+  "include": [
+    "src",
+    "src/ui",
+    "vite.config.ts"
+  ],
   "references": []
 }

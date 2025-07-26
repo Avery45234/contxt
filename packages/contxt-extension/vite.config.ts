@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { crx } from '@crxjs/vite-plugin';
-// Point to the manifest at the new root location
 import manifest from './manifest.json' with { type: 'json' };
 import path from 'path';
 
@@ -12,7 +11,6 @@ export default defineConfig({
         crx({ manifest }),
     ],
     build: {
-        // Re-introduce rollupOptions with the correct, absolute paths to the root entry points
         rollupOptions: {
             input: {
                 sidebar: path.resolve(__dirname, 'sidebar.html'),
@@ -23,4 +21,5 @@ export default defineConfig({
             include: [/node_modules/],
         },
     },
+    // The optimizeDeps block is no longer needed.
 });

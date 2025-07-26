@@ -60,7 +60,7 @@ const App: FC = () => {
                     overflow: 'hidden',
                 }}
             >
-                <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+                <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', flexShrink: 0 }}>
                     <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
                         contxt
                     </Typography>
@@ -77,7 +77,7 @@ const App: FC = () => {
                     )}
                 </Box>
 
-                <Box sx={{ p: 1, borderTop: 1, borderColor: 'divider', textAlign: 'center' }}>
+                <Box sx={{ p: 1, borderTop: 1, borderColor: 'divider', textAlign: 'center', flexShrink: 0 }}>
                     <Typography variant="caption" color="text.secondary">
                         Disclaimer. Ratings from{' '}
                         <Link href="https://www.allsides.com/" target="_blank" rel="noopener">AllSides</Link> &{' '}
