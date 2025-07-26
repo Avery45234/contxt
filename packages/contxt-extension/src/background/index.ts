@@ -30,7 +30,9 @@ async function main() {
         try {
             await chrome.runtime.sendMessage(message);
         } catch (e) {
-            // This can happen if the side panel is not open. It's safe to ignore.
+            // --- THE FIX: Log the error instead of ignoring it ---
+            // This gives us the visibility we need.
+            console.warn(`[contxt] Could not send context update to Tab ${tabId}. UI is likely closed.`, e);
         }
     }
 
