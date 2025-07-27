@@ -1,6 +1,4 @@
 import { FC } from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
-import { ExpandMore } from '@mui/icons-material';
 import { ContentAnalysisResult } from '../../lib/types.js';
 
 interface StoryAnalysisProps {
@@ -13,25 +11,16 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
     }
 
     return (
-        <Box>
-            <Typography variant="h6" component="h2" gutterBottom>
-                Page Content Analysis
-            </Typography>
-            <Accordion variant="outlined">
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                    <Typography>
-                        {content.hasArticle ? 'Found 1 Article' : 'No Article Found'}
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Box sx={{ wordBreak: 'break-word' }}>
-                        <Typography variant="body2">
-                            <strong>Headline:</strong> {content.headline || 'N/A'}
-                        </Typography>
-                    </Box>
-                </AccordionDetails>
-            </Accordion>
-        </Box>
+        <section>
+            <h2>Page Content Analysis</h2>
+            <div>
+                <p>{content.hasArticle ? 'Found 1 Article' : 'No Article Found'}</p>
+                <details>
+                    <summary>Details</summary>
+                    <p>Headline: {content.headline || 'N/A'}</p>
+                </details>
+            </div>
+        </section>
     );
 };
 
