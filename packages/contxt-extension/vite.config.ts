@@ -21,12 +21,6 @@ export default defineConfig({
             include: [/node_modules/],
         },
     },
-    // Use port 5175 as requested.
-    server: {
-        port: 5175,
-        strictPort: true,
-        hmr: {
-            port: 5175,
-        },
-    },
+    // The entire 'server' block has been removed to allow the CRXJS plugin
+    // to use its own stable, default HMR strategy.
 });
