@@ -4,13 +4,10 @@ import App from './App.jsx';
 import './sidebar.css';
 
 // THE DEFINITIVE FIX:
-// In development mode, dynamically inject the script that connects to the
-// standalone react-devtools server. This is the official, supported method.
+// In development mode, import the inline devtools connector.
+// This is safe, targeted, and will not affect other tabs.
 if (import.meta.env.DEV) {
-    const script = document.createElement('script');
-    // The port 8097 is the default for the react-devtools package.
-    script.src = 'http://localhost:8097';
-    document.head.appendChild(script);
+    import('react-devtools-inline/backend');
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { crx } from '@crxjs/vite-plugin';
+import { crx, ManifestV3Export } from '@crxjs/vite-plugin';
 import manifest from './manifest.json' with { type: 'json' };
 import path from 'path';
 
@@ -8,7 +8,7 @@ import path from 'path';
 export default defineConfig({
     plugins: [
         react(),
-        crx({ manifest }),
+        crx({ manifest: manifest as ManifestV3Export }),
     ],
     build: {
         rollupOptions: {
@@ -21,5 +21,12 @@ export default defineConfig({
             include: [/node_modules/],
         },
     },
-    // The optimizeDeps block is no longer needed.
+    // Use port 5175 as requested.
+    server: {
+        port: 5175,
+        strictPort: true,
+        hmr: {
+            port: 5175,
+        },
+    },
 });
