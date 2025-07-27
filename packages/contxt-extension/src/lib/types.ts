@@ -19,32 +19,35 @@ export interface Publisher {
     mbfc: MbfcData;
 }
 
-// --- Messaging Types ---
-
 export interface ContentAnalysisResult {
     hasArticle: boolean;
     headline?: string;
 }
 
-// Message from Content Script to Background
+export interface TabContextResponse {
+    publisher?: Publisher;
+    content?: ContentAnalysisResult;
+}
+
+// --- Messaging Types ---
+
 export interface ContentScriptMessage {
     type: 'CONTENT_ANALYSIS_RESULT';
     payload: ContentAnalysisResult;
 }
 
-// Message from UI to Background (Requesting data)
 export interface UiRequestMessage {
     type: 'GET_CURRENT_TAB_CONTEXT';
 }
 
-// Message from Background to UI (Pushing updates)
 export interface UiUpdateMessage {
     type: 'CONTEXT_UPDATED';
     payload: TabContextResponse;
 }
 
-// Response from Background to UI for the initial request
-export interface TabContextResponse {
-    publisher?: Publisher;
-    content?: ContentAnalysisResult;
+export interface LogMessage {
+    type: 'LOG';
+    payload: string;
 }
+
+export type BackgroundMessage = ContentScriptMessage | UiRequestMessage | LogMessage | UiUpdateMessage;

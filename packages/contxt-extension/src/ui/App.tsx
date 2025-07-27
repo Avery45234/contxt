@@ -1,8 +1,18 @@
 import { FC, useEffect } from 'react';
+import { LogMessage } from '../lib/types.js';
 
 const App: FC = () => {
     useEffect(() => {
-        console.log('[contxt-ui] UI component mounted.');
+        const log = (message: string) => {
+            const logMessage: LogMessage = { type: 'LOG', payload: message };
+            chrome.runtime.sendMessage(logMessage);
+        };
+
+        log('[contxt-ui] UI component mounted.');
+
+        return () => {
+            log('[contxt-ui] UI component unmounted.');
+        };
     }, []);
 
     return (
