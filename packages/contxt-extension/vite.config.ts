@@ -1,26 +1,24 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { crx, ManifestV3Export } from '@crxjs/vite-plugin';
-import manifest from './manifest.json' with { type: 'json' };
-import path from 'path';
+import manifest from './manifest.json';
 
-// https://vitejs.dev/config/
+// This is the definitive, stable configuration for a Manifest V3 extension
+// using the CRXJS Vite plugin.
 export default defineConfig({
     plugins: [
         react(),
         crx({ manifest: manifest as ManifestV3Export }),
     ],
-    build: {
-        rollupOptions: {
-            input: {
-                sidebar: path.resolve(__dirname, 'sidebar.html'),
-                devtools: path.resolve(__dirname, 'devtools.html'),
-            },
-        },
-        commonjsOptions: {
-            include: [/node_modules/],
+    // THE DEFINITIVE FIX:
+    // This server configuration is required for HMR to work correctly with
+    // a Manifest V3 service worker. It establishes a stable port and prevents
+    // the cross-origin errors that were causing the registration to fail.
+    server: {
+        port: 5175,
+        strictPort: true,
+        hmr: {
+            port: 5175,
         },
     },
-    // The entire 'server' block has been removed to allow the CRXJS plugin
-    // to use its own stable, default HMR strategy.
 });
