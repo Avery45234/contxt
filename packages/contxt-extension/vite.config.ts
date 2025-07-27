@@ -10,15 +10,15 @@ export default defineConfig({
         react(),
         crx({ manifest: manifest as ManifestV3Export }),
     ],
-    // THE DEFINITIVE FIX:
-    // This server configuration is required for HMR to work correctly with
-    // a Manifest V3 service worker. It establishes a stable port and prevents
-    // the cross-origin errors that were causing the registration to fail.
     server: {
         port: 5175,
         strictPort: true,
         hmr: {
             port: 5175,
         },
+        // THE DEFINITIVE FIX:
+        // Enable the CORS middleware. This is required for the extension's
+        // sandboxed pages (chrome-extension://) to communicate with the dev server.
+        cors: true,
     },
 });
