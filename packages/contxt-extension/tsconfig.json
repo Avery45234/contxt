@@ -4,15 +4,24 @@
     "composite": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
-    "moduleResolution": "node",
-    "module": "esnext",
-    "types": ["chrome", "vite/client"]
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "types": [
+      "chrome",
+      "vite/client"
+    ]
   },
   "include": [
     "src",
-    "vite.config.ts"
+    "vite.config.ts",
+    "tailwind.config.js",
+    "postcss.config.js"
   ],
   "references": []
 }
