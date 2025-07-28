@@ -1,8 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Diagnostic Style: If you see a red background, this file is being loaded. */
-body {
-    background-color: red !important;
-}
