@@ -1,0 +1,82 @@
+[
+  {
+    "domain": "bbc.com",
+    "displayName": "BBC News",
+    "allsidesBias": {
+      "rating": "Center",
+      "value": -0.80
+    },
+    "mbfc": {
+      "bias": "Least Biased",
+      "factualReporting": "Very High",
+      "credibility": "High Credibility",
+      "traffic": "Very High Traffic",
+      "mediaType": "News Agency",
+      "country": "UK"
+    }
+  },
+  {
+    "domain": "foxnews.com",
+    "displayName": "Fox News Digital",
+    "allsidesBias": {
+      "rating": "Right",
+      "value": 3.27
+    },
+    "mbfc": {
+      "bias": "Right",
+      "factualReporting": "Mixed",
+      "credibility": "Medium Credibility",
+      "traffic": "Very High Traffic",
+      "mediaType": "Cable News",
+      "country": "USA"
+    }
+  },
+  {
+    "domain": "apnews.com",
+    "displayName": "Associated Press",
+    "allsidesBias": {
+      "rating": "Left",
+      "value": -3.02
+    },
+    "mbfc": {
+      "bias": "Left-Center",
+      "factualReporting": "Very High",
+      "credibility": "High Credibility",
+      "traffic": "Very High Traffic",
+      "mediaType": "News Agency",
+      "country": "USA"
+    }
+  },
+  {
+    "domain": "nytimes.com",
+    "displayName": "The New York Times",
+    "allsidesBias": {
+      "rating": "Lean Left",
+      "value": -2.20
+    },
+    "mbfc": {
+      "bias": "Left-Center",
+      "factualReporting": "High",
+      "credibility": "High Credibility",
+      "traffic": "Very High Traffic",
+      "mediaType": "Newspaper",
+      "country": "USA"
+    }
+  },
+  {
+    "domain": "nationalreview.com",
+    "displayName": "National Review",
+    "allsidesBias": {
+      "rating": "Lean Right",
+      "value": 2.50
+    },
+    "mbfc": {
+      "bias": "Right",
+      "factualReporting": "High",
+      "credibility": "High Credibility",
+      "traffic": "High Traffic",
+      "mediaType": "Magazine",
+      "country": "USA"
+    }
+  }
+]
