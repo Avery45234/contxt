@@ -48,22 +48,35 @@ const App: FC = () => {
     }, []);
 
     return (
-        <div>
-            <header>
-                <h1>contxt</h1>
+        <div className="flex flex-col h-screen w-[380px] bg-slate-100 text-slate-800">
+            {/* Header */}
+            <header className="p-4 border-b border-slate-200">
+                <h1 className="text-xl font-bold">contxt</h1>
             </header>
-            <main>
+
+            {/* Main Content (Scrollable) */}
+            <main className="flex-grow overflow-y-auto p-4">
                 {isLoading ? (
                     <p>Loading context...</p>
                 ) : (
-                    <>
+                    <div className="flex flex-col gap-4">
                         <PublisherProfile publisher={context?.publisher} />
                         <StoryAnalysis content={context?.content} />
-                    </>
+                    </div>
                 )}
             </main>
-            <footer>
-                <p>Disclaimer. Ratings from AllSides & MBFC.</p>
+
+            {/* Footer */}
+            <footer className="p-2 text-center border-t border-slate-200">
+                <p className="text-xs text-slate-500">
+                    Disclaimer. Ratings from{' '}
+                    <a href="https://www.allsides.com/" target="_blank" rel="noopener" className="underline hover:text-blue-600">
+                        AllSides
+                    </a> &{' '}
+                    <a href="https://mediabiasfactcheck.com/" target="_blank" rel="noopener" className="underline hover:text-blue-600">
+                        MBFC
+                    </a>.
+                </p>
             </footer>
         </div>
     );
