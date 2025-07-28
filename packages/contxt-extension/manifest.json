@@ -39,7 +39,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "publishers.json"
+        "publishers.json",
+        "icons/bias-meter-face.png"
       ],
       "matches": [
         "<all_urls>"

@@ -8,8 +8,10 @@
     },
     "mbfc": {
       "bias": "Least Biased",
+      "biasValue": 0.5,
       "factualReporting": "Very High",
       "credibility": "High Credibility",
+      "credibilityValue": 0.5,
       "traffic": "Very High Traffic",
       "mediaType": "News Agency",
       "country": "UK"
@@ -24,8 +26,10 @@
     },
     "mbfc": {
       "bias": "Right",
+      "biasValue": 4.5,
       "factualReporting": "Mixed",
       "credibility": "Medium Credibility",
+      "credibilityValue": 4.5,
       "traffic": "Very High Traffic",
       "mediaType": "Cable News",
       "country": "USA"
@@ -40,8 +44,10 @@
     },
     "mbfc": {
       "bias": "Left-Center",
+      "biasValue": -2.1,
       "factualReporting": "Very High",
       "credibility": "High Credibility",
+      "credibilityValue": 0.8,
       "traffic": "Very High Traffic",
       "mediaType": "News Agency",
       "country": "USA"
@@ -56,8 +62,10 @@
     },
     "mbfc": {
       "bias": "Left-Center",
+      "biasValue": -2.5,
       "factualReporting": "High",
       "credibility": "High Credibility",
+      "credibilityValue": 1.5,
       "traffic": "Very High Traffic",
       "mediaType": "Newspaper",
       "country": "USA"
@@ -72,8 +80,10 @@
     },
     "mbfc": {
       "bias": "Right",
+      "biasValue": 4.8,
       "factualReporting": "High",
       "credibility": "High Credibility",
+      "credibilityValue": 2.0,
       "traffic": "High Traffic",
       "mediaType": "Magazine",
       "country": "USA"

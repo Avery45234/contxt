@@ -5,8 +5,10 @@ export interface AllSidesBias {
 
 export interface MbfcData {
     bias: string;
+    biasValue: number;
     factualReporting: string;
     credibility: string;
+    credibilityValue: number;
     traffic: string;
     mediaType: string;
     country: string;
