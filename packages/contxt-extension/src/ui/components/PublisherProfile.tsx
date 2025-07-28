@@ -21,29 +21,30 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
 
                     {/* Bias Visualization */}
                     <div className="grid grid-cols-2 gap-4">
-                        <RadialGauge
-                            label="AllSides Bias"
-                            value={publisher.allsidesBias.value}
-                            min={-6}
-                            max={6}
-                            imageUrl={meterFaceUrl}
-                        />
-                        <RadialGauge
-                            label="MBFC Bias"
-                            value={publisher.mbfc.biasValue}
-                            min={-8.1}
-                            max={8.1}
-                            imageUrl={meterFaceUrl}
-                        />
+                        <div className="flex flex-col items-center gap-1">
+                            <RadialGauge
+                                value={publisher.allsidesBias.value}
+                                min={-6}
+                                max={6}
+                                imageUrl={meterFaceUrl}
+                            />
+                            <p className="text-xs text-slate-500">AllSides Bias</p>
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                            <RadialGauge
+                                value={publisher.mbfc.biasValue}
+                                min={-8.1}
+                                max={8.1}
+                                imageUrl={meterFaceUrl}
+                            />
+                            <p className="text-xs text-slate-500">MBFC Bias</p>
+                        </div>
                     </div>
 
                     {/* Credibility Visualization */}
-                    <div>
-                        <CredibilityMeter
-                            label="MBFC Factual Reporting"
-                            value={publisher.mbfc.credibilityValue}
-                            max={8.0}
-                        />
+                    <div className="flex flex-col items-center gap-1">
+                        <CredibilityMeter value={publisher.mbfc.credibilityValue} max={8.0} />
+                        <p className="text-xs text-slate-500">MBFC Factual Reporting</p>
                     </div>
                 </div>
             )}

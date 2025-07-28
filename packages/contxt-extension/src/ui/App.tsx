@@ -13,8 +13,13 @@ const App: FC = () => {
     const [isInspectMode, setIsInspectMode] = useState(false);
 
     const log = useCallback((message: string) => {
-        const logMessage: LogMessage = { type: 'LOG', payload: message };
-        chrome.runtime.sendMessage(logMessage);
+        try {
+            const logMessage: LogMessage = { type: 'LOG', payload: message };
+            chrome.runtime.sendMessage(logMessage);
+        } catch (error) {
+            // Suppress "Extension context invalidated" errors when panel closes.
+            // This is an expected condition, not a true error.
+        }
     }, []);
 
     const fetchContextForTab = useCallback(
