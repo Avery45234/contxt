@@ -17,13 +17,18 @@ async function main() {
         const rating = biasRating.toLowerCase().replace(' ', '-');
         const pathPrefix = `icons/icon-`;
         const pathSuffix = `-${rating}.png`;
-        //const defaultPath = `${pathPrefix}128-unknown.png`;
         return { path: { '16': `${pathPrefix}16${pathSuffix}`, '24': `${pathPrefix}24${pathSuffix}`, '48': `${pathPrefix}48${pathSuffix}`, '128': `${pathPrefix}128${pathSuffix}` } };
     }
 
     async function sendContextUpdate(tabId: number) {
         const context = tabContextCache.get(tabId);
-        const message: UiUpdateMessage = { type: 'CONTEXT_UPDATED', payload: context ?? {} };
+        const message: UiUpdateMessage = {
+            type: 'CONTEXT_UPDATED',
+            payload: {
+                tabId: tabId,
+                context: context ?? {},
+            },
+        };
         try {
             await chrome.runtime.sendMessage(message);
         } catch (e) {

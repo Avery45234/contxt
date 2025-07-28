@@ -42,7 +42,10 @@ export interface UiRequestMessage {
 
 export interface UiUpdateMessage {
     type: 'CONTEXT_UPDATED';
-    payload: TabContextResponse;
+    payload: {
+        tabId: number;
+        context: TabContextResponse;
+    };
 }
 
 export interface LogMessage {
