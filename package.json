@@ -13,7 +13,7 @@
     "validate": "npm run validate -w packages/contxt-extension",
     "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write .",
-    "tailwind:init": "tailwindcss init -p"
+    "purge": "rimraf ./node_modules ./package-lock.json ./packages/contxt-extension/node_modules ./packages/contxt-extension/dist && npm install"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.11",
