@@ -16,7 +16,7 @@ const CredibilityMeter: FC<CredibilityMeterProps> = ({ value, max }) => {
     };
 
     return (
-        <div className="relative w-full h-4 bg-slate-200 rounded-sm overflow-hidden">
+        <div className="relative w-full h-3 bg-slate-200 rounded-sm overflow-hidden border border-slate-300">
             {/* Proportional Fill Bar */}
             <div
                 className={`absolute top-0 left-0 h-full ${getFillColor()}`}

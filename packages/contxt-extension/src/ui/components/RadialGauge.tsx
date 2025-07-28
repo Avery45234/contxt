@@ -20,7 +20,7 @@ const RadialGauge: FC<RadialGaugeProps> = ({ value, min, max, imageUrl }) => {
         >
             {/* SVG Needle Container */}
             <div
-                className="absolute bottom-0 left-1/2 w-4 h-[90%]" // Container size for the SVG
+                className="absolute bottom-0 left-1/2 w-[12.5%] h-[85%]" // Container size for the SVG
                 style={{
                     transformOrigin: 'bottom center',
                     transform: `translateX(-50%) rotate(${rotation}deg)`,
