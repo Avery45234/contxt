@@ -9,15 +9,16 @@ interface DebugFrameProps {
     };
     isActive: boolean;
     children: ReactNode;
+    className?: string;
 }
 
-const DebugFrame: FC<DebugFrameProps> = ({ label, colorClasses, isActive, children }) => {
+const DebugFrame: FC<DebugFrameProps> = ({ label, colorClasses, isActive, children, className }) => {
     if (!isActive) {
         return <>{children}</>;
     }
 
     return (
-        <div className={`relative border ${colorClasses.border}`}>
+        <div className={`relative border ${colorClasses.border} ${className ?? ''}`}>
             <div
                 className={`absolute -top-px left-2 -translate-y-1/2 px-1 text-xs ${colorClasses.bg} ${colorClasses.text}`}
             >

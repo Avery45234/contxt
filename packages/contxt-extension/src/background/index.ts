@@ -12,6 +12,7 @@ async function main() {
     console.log(`[contxt-bg] Publisher data loaded successfully. Found ${publishers.length} publishers.`);
 
     const tabContextCache = new Map<number, TabContextResponse>();
+    const windowPanelState = new Map<number, boolean>(); // Key: windowId, Value: isOpen
 
     function getIconPaths(biasRating: string): chrome.action.TabIconDetails {
         const rating = biasRating.toLowerCase().replace(' ', '-');
@@ -60,6 +61,7 @@ async function main() {
         await sendContextUpdate(tabId);
     }
 
+    // --- Message Listeners ---
     chrome.runtime.onMessage.addListener((message: BackgroundMessage, sender, sendResponse) => {
         if (message.type === 'CONTENT_ANALYSIS_RESULT' && sender.tab?.id && sender.tab.url) {
             handleStateUpdate(sender.tab.id, sender.tab.url, message.payload);
@@ -68,7 +70,7 @@ async function main() {
 
         if (message.type === 'GET_CURRENT_TAB_CONTEXT') {
             (async () => {
-                const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
                 if (tab?.id) {
                     sendResponse(tabContextCache.get(tab.id));
                 } else {
@@ -87,7 +89,42 @@ async function main() {
         await sendContextUpdate(activeInfo.tabId);
     });
 
-    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+    // --- Window-Aware Panel Management ---
+    chrome.action.onClicked.addListener(async (tab) => {
+        if (!tab.windowId) return;
+        const windowId = tab.windowId;
+
+        const currentState = windowPanelState.get(windowId) ?? false;
+        const newState = !currentState;
+        windowPanelState.set(windowId, newState);
+
+        const tabsInWindow = await chrome.tabs.query({ windowId });
+        for (const t of tabsInWindow) {
+            if (t.id) {
+                await chrome.sidePanel.setOptions({ tabId: t.id, enabled: newState });
+            }
+        }
+
+        if (newState) {
+            await chrome.sidePanel.open({ windowId });
+        }
+    });
+
+    chrome.tabs.onCreated.addListener(async (tab) => {
+        if (!tab.id || !tab.windowId) return;
+        const panelState = windowPanelState.get(tab.windowId) ?? false;
+        await chrome.sidePanel.setOptions({ tabId: tab.id, enabled: panelState });
+    });
+
+    chrome.tabs.onAttached.addListener(async (tabId, attachInfo) => {
+        const panelState = windowPanelState.get(attachInfo.newWindowId) ?? false;
+        await chrome.sidePanel.setOptions({ tabId, enabled: panelState });
+    });
+
+    chrome.windows.onRemoved.addListener((windowId) => {
+        windowPanelState.delete(windowId);
+        console.log(`[contxt-bg] Cleaned up state for closed window ${windowId}`);
+    });
 
     chrome.tabs.onRemoved.addListener((tabId) => {
         tabContextCache.delete(tabId);

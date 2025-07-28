@@ -1,12 +1,14 @@
 import { FC, useEffect, useState, useCallback } from 'react';
 import { TabContextResponse, UiRequestMessage, UiUpdateMessage, LogMessage } from '../lib/types.js';
-import PublisherProfile from './components/PublisherProfile.jsx';
-import StoryAnalysis from './components/StoryAnalysis.jsx';
-import DebugFrame from './components/DebugFrame.jsx';
+import PublisherProfile from './components/PublisherProfile';
+import StoryAnalysis from './components/StoryAnalysis';
+import DebugFrame from './components/DebugFrame';
 
 const App: FC = () => {
     const [context, setContext] = useState<TabContextResponse | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
+    const [myTabId, setMyTabId] = useState<number | undefined>(undefined);
+    const [myWindowId, setMyWindowId] = useState<number | undefined>(undefined);
     const [activeTabId, setActiveTabId] = useState<number | undefined>(undefined);
     const [isInspectMode, setIsInspectMode] = useState(false);
 
@@ -37,13 +39,15 @@ const App: FC = () => {
 
     useEffect(() => {
         const initialize = async () => {
-            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            if (tab?.id) {
-                log(`[contxt-ui] UI Initialized for active Tab ${tab.id}`);
+            const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+            if (tab?.id && tab.windowId) {
+                log(`[contxt-ui] UI Initialized. MyTabId: ${tab.id}, MyWindowId: ${tab.windowId}`);
+                setMyTabId(tab.id);
+                setMyWindowId(tab.windowId);
                 setActiveTabId(tab.id);
                 fetchContextForTab(tab.id);
             } else {
-                log('[contxt-ui] CRITICAL: Could not determine active tab ID on mount.');
+                log('[contxt-ui] CRITICAL: Could not determine active tab/window on mount.');
                 setIsLoading(false);
             }
         };
@@ -60,19 +64,30 @@ const App: FC = () => {
         };
 
         const tabActivationListener = (activeInfo: chrome.tabs.TabActiveInfo) => {
-            log(`[contxt-ui] Tab activated: ${activeInfo.tabId}. Updating context.`);
-            setActiveTabId(activeInfo.tabId);
-            fetchContextForTab(activeInfo.tabId);
+            if (activeInfo.windowId === myWindowId) {
+                log(`[contxt-ui] Tab activated in my window: ${activeInfo.tabId}. Updating context.`);
+                setActiveTabId(activeInfo.tabId);
+                fetchContextForTab(activeInfo.tabId);
+            }
+        };
+
+        const tabAttachListener = (tabId: number, attachInfo: chrome.tabs.TabAttachInfo) => {
+            if (tabId === myTabId) {
+                log(`[contxt-ui] My tab was moved to a new window: ${attachInfo.newWindowId}`);
+                setMyWindowId(attachInfo.newWindowId);
+            }
         };
 
         chrome.runtime.onMessage.addListener(messageListener);
         chrome.tabs.onActivated.addListener(tabActivationListener);
+        chrome.tabs.onAttached.addListener(tabAttachListener);
 
         return () => {
             chrome.runtime.onMessage.removeListener(messageListener);
             chrome.tabs.onActivated.removeListener(tabActivationListener);
+            chrome.tabs.onAttached.removeListener(tabAttachListener);
         };
-    }, [activeTabId, fetchContextForTab, log, isLoading]);
+    }, [activeTabId, myTabId, myWindowId, fetchContextForTab, log, isLoading]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -102,7 +117,7 @@ const App: FC = () => {
                     </header>
                 </DebugFrame>
 
-                <DebugFrame label="Main Content" colorClasses={COLORS.main} isActive={isInspectMode}>
+                <DebugFrame label="Main Content" colorClasses={COLORS.main} isActive={isInspectMode} className="flex-grow">
                     <main className="flex-grow overflow-y-auto p-4">
                         {isLoading ? (
                             <p>Loading context...</p>
