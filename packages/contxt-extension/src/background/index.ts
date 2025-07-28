@@ -98,15 +98,18 @@ async function main() {
         const newState = !currentState;
         windowPanelState.set(windowId, newState);
 
+        // If opening, open the panel IMMEDIATELY to respect the user gesture time limit.
+        if (newState) {
+            await chrome.sidePanel.open({ windowId });
+        }
+
+        // Now, perform the background task of syncing the enabled state across all tabs in the window.
+        // This can happen after the panel is open.
         const tabsInWindow = await chrome.tabs.query({ windowId });
         for (const t of tabsInWindow) {
             if (t.id) {
                 await chrome.sidePanel.setOptions({ tabId: t.id, enabled: newState });
             }
-        }
-
-        if (newState) {
-            await chrome.sidePanel.open({ windowId });
         }
     });
 
