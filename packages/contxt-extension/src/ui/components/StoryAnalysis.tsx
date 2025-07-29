@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { ContentAnalysisResult } from '../../lib/types.js';
 
 interface StoryAnalysisProps {
@@ -15,9 +15,41 @@ const ReadabilityDetail: FC<{ label: string; value: string | number | null }> = 
 };
 
 const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
+    const [copiedState, setCopiedState] = useState<'positive' | 'negative' | null>(null);
+
     if (!content) {
         return null;
     }
+
+    const handleCopyToClipboard = (classification: 'positive' | 'negative') => {
+        if (!content?.readability) return;
+
+        // Helper to sanitize strings for TSV format by removing tabs and newlines
+        const sanitize = (str: string | null | undefined): string => {
+            if (str === null || str === undefined) {
+                return '';
+            }
+            return str.replace(/[\t\n\r]/g, ' ');
+        };
+
+        const { title, siteName, byline, length, excerpt } = content.readability;
+
+        const values = [
+            sanitize(title),
+            sanitize(siteName),
+            sanitize(byline),
+            length, // length is a number, no sanitization needed
+            sanitize(excerpt),
+            classification,
+        ];
+
+        const tsvString = values.join('\t');
+
+        navigator.clipboard.writeText(tsvString).then(() => {
+            setCopiedState(classification);
+            setTimeout(() => setCopiedState(null), 2000); // Reset after 2 seconds
+        });
+    };
 
     return (
         <section className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
@@ -44,6 +76,22 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
                         )}
                     </div>
                 </details>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button
+                        onClick={() => handleCopyToClipboard('positive')}
+                        className="text-xs font-semibold py-1 px-2 rounded bg-green-100 text-green-800 hover:bg-green-200 disabled:opacity-50"
+                        disabled={!content.readability}
+                    >
+                        {copiedState === 'positive' ? 'Copied!' : 'Log as Article'}
+                    </button>
+                    <button
+                        onClick={() => handleCopyToClipboard('negative')}
+                        className="text-xs font-semibold py-1 px-2 rounded bg-red-100 text-red-800 hover:bg-red-200 disabled:opacity-50"
+                        disabled={!content.readability}
+                    >
+                        {copiedState === 'negative' ? 'Copied!' : 'Log as Not Article'}
+                    </button>
+                </div>
             </div>
         </section>
     );
