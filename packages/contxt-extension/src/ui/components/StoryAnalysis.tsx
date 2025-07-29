@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { ContentAnalysisResult } from '../../lib/types.js';
 import SentimentMeter from './SentimentMeter';
 import ReadabilityMeter from './ReadabilityMeter';
@@ -17,40 +17,9 @@ const ReadabilityDetail: FC<{ label: string; value: string | number | null }> = 
 };
 
 const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
-    const [copiedState, setCopiedState] = useState<'positive' | 'negative' | null>(null);
-
     if (!content) {
         return null;
     }
-
-    const handleCopyToClipboard = (classification: 'positive' | 'negative') => {
-        if (!content?.readability) return;
-
-        const sanitize = (str: string | null | undefined): string => {
-            if (str === null || str === undefined) {
-                return '';
-            }
-            return str.replace(/[\t\n\r]/g, ' ');
-        };
-
-        const { title, siteName, byline, length, excerpt } = content.readability;
-
-        const values = [
-            sanitize(title),
-            sanitize(siteName),
-            sanitize(byline),
-            length,
-            sanitize(excerpt),
-            classification,
-        ];
-
-        const tsvString = values.join('\t');
-
-        navigator.clipboard.writeText(tsvString).then(() => {
-            setCopiedState(classification);
-            setTimeout(() => setCopiedState(null), 2000);
-        });
-    };
 
     const hasSentiment = content.headlineSentiment || content.contentSentiment;
     const hasReadability = content.readabilityScore !== null;
@@ -81,43 +50,39 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
             )}
 
             <div>
-                <p className="font-semibold text-slate-700">
-                    {content.hasArticle ? 'Found Readable Content' : 'No Readable Content Found'}
-                </p>
-                <details open className="mt-2 text-sm">
-                    <summary className="cursor-pointer text-slate-600 hover:text-slate-900">
-                        Show Readability.js Metadata
-                    </summary>
-                    <div className="p-2 mt-2 bg-slate-50 rounded space-y-1">
-                        {content.readability ? (
-                            <>
-                                <ReadabilityDetail label="Title" value={content.readability.title} />
-                                <ReadabilityDetail label="Site Name" value={content.readability.siteName} />
+                <h3 className="text-base font-bold text-slate-700 mb-2">Readable Content</h3>
+                {content.readability ? (
+                    <div className="text-sm">
+                        <div className="space-y-1">
+                            <ReadabilityDetail label="Title" value={content.readability.title} />
+                            <ReadabilityDetail label="Site Name" value={content.readability.siteName} />
+                        </div>
+                        <details className="mt-2">
+                            <summary className="flex items-center gap-1 cursor-pointer list-none text-xs text-slate-500 hover:text-slate-900 w-fit">
+                                <svg
+                                    className="w-3 h-3 text-slate-500 transition-transform details-arrow"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                <span>Show Details</span>
+                            </summary>
+                            <div className="mt-2 ml-1 pl-3 py-1 border-l-2 border-slate-200 space-y-1">
                                 <ReadabilityDetail label="Byline" value={content.readability.byline} />
-                                <ReadabilityDetail label="Length" value={content.readability.length} />
+                                <ReadabilityDetail label="Length (chars)" value={content.readability.length} />
                                 <ReadabilityDetail label="Excerpt" value={content.readability.excerpt} />
-                            </>
-                        ) : (
-                            <p className="text-slate-500 italic">No metadata available.</p>
-                        )}
+                            </div>
+                        </details>
                     </div>
-                </details>
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                    <button
-                        onClick={() => handleCopyToClipboard('positive')}
-                        className="text-xs font-semibold py-1 px-2 rounded bg-green-100 text-green-800 hover:bg-green-200 disabled:opacity-50"
-                        disabled={!content.readability}
-                    >
-                        {copiedState === 'positive' ? 'Copied!' : 'Log as Article'}
-                    </button>
-                    <button
-                        onClick={() => handleCopyToClipboard('negative')}
-                        className="text-xs font-semibold py-1 px-2 rounded bg-red-100 text-red-800 hover:bg-red-200 disabled:opacity-50"
-                        disabled={!content.readability}
-                    >
-                        {copiedState === 'negative' ? 'Copied!' : 'Log as Not Article'}
-                    </button>
-                </div>
+                ) : (
+                    <p className="text-sm text-slate-500 italic">No primary article content was found on this page.</p>
+                )}
             </div>
         </section>
     );
