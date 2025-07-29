@@ -26,7 +26,7 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
                 <p className="font-semibold text-slate-700">
                     {content.hasArticle ? 'Found Readable Content' : 'No Readable Content Found'}
                 </p>
-                <details className="mt-2 text-sm">
+                <details open className="mt-2 text-sm">
                     <summary className="cursor-pointer text-slate-600 hover:text-slate-900">
                         Show Readability.js Metadata
                     </summary>
