@@ -1,5 +1,6 @@
 import { FC, useState } from 'react';
 import { ContentAnalysisResult } from '../../lib/types.js';
+import SentimentMeter from './SentimentMeter';
 
 interface StoryAnalysisProps {
     content?: ContentAnalysisResult;
@@ -24,7 +25,6 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
     const handleCopyToClipboard = (classification: 'positive' | 'negative') => {
         if (!content?.readability) return;
 
-        // Helper to sanitize strings for TSV format by removing tabs and newlines
         const sanitize = (str: string | null | undefined): string => {
             if (str === null || str === undefined) {
                 return '';
@@ -38,7 +38,7 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
             sanitize(title),
             sanitize(siteName),
             sanitize(byline),
-            length, // length is a number, no sanitization needed
+            length,
             sanitize(excerpt),
             classification,
         ];
@@ -47,13 +47,30 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
 
         navigator.clipboard.writeText(tsvString).then(() => {
             setCopiedState(classification);
-            setTimeout(() => setCopiedState(null), 2000); // Reset after 2 seconds
+            setTimeout(() => setCopiedState(null), 2000);
         });
     };
+
+    const hasSentiment = content.headlineSentiment || content.contentSentiment;
 
     return (
         <section className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
             <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">Page Content Analysis</h2>
+
+            {hasSentiment && (
+                <div className="mb-4">
+                    <h3 className="text-base font-bold text-slate-700 mb-2">Sentiment Analysis</h3>
+                    <div className="space-y-3">
+                        {content.headlineSentiment && (
+                            <SentimentMeter label="Headline Sentiment" score={content.headlineSentiment.comparative} />
+                        )}
+                        {content.contentSentiment && (
+                            <SentimentMeter label="Content Sentiment" score={content.contentSentiment.comparative} />
+                        )}
+                    </div>
+                </div>
+            )}
+
             <div>
                 <p className="font-semibold text-slate-700">
                     {content.hasArticle ? 'Found Readable Content' : 'No Readable Content Found'}

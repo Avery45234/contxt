@@ -29,10 +29,17 @@ export interface ReadabilityMetadata {
     siteName: string | null;
 }
 
+export interface SentimentResult {
+    score: number;
+    comparative: number;
+}
+
 export interface ContentAnalysisResult {
     hasArticle: boolean;
     headline?: string;
     readability: ReadabilityMetadata | null;
+    headlineSentiment: SentimentResult | null;
+    contentSentiment: SentimentResult | null;
 }
 
 export interface TabContextResponse {

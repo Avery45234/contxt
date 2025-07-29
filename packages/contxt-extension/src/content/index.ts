@@ -1,5 +1,6 @@
 import { Readability, ParseResult } from '@mozilla/readability';
-import { ContentScriptMessage, ReadabilityMetadata } from '../lib/types.js';
+import Sentiment from 'sentiment';
+import { ContentScriptMessage, ReadabilityMetadata, SentimentResult } from '../lib/types.js';
 
 const LOG_STYLE = 'background: #28a745; color: #ffffff; font-size: 12px; padding: 2px 5px; border-radius: 3px;';
 
@@ -20,10 +21,19 @@ function extractMetadata(article: ParseResult | null): ReadabilityMetadata | nul
 
 function analyzePage() {
     try {
+        const sentiment = new Sentiment();
         const parser = new DOMParser();
         const doc = parser.parseFromString(document.documentElement.outerHTML, 'text/html');
         const reader = new Readability(doc);
         const article = reader.parse();
+
+        let headlineSentiment: SentimentResult | null = null;
+        let contentSentiment: SentimentResult | null = null;
+
+        if (article) {
+            headlineSentiment = sentiment.analyze(article.title);
+            contentSentiment = sentiment.analyze(article.textContent);
+        }
 
         const message: ContentScriptMessage = {
             type: 'CONTENT_ANALYSIS_RESULT',
@@ -31,6 +41,8 @@ function analyzePage() {
                 hasArticle: article !== null,
                 headline: article?.title ?? undefined,
                 readability: extractMetadata(article),
+                headlineSentiment,
+                contentSentiment,
             },
         };
 
