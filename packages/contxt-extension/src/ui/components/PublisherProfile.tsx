@@ -26,7 +26,7 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
 
     return (
         <section className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
-            <h2 className="text-lg font-bold text-slate-700 mb-3">Publisher Analysis</h2>
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">Publisher Analysis</h2>
             {!publisher ? (
                 <p className="text-slate-500">This site is not currently in the contxt database.</p>
             ) : (
@@ -43,7 +43,7 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                                 imageUrl={meterFaceUrl}
                             />
                             <p className="text-xs text-slate-500 text-center leading-tight">
-                                AllSides:{' '}
+                                AllSides Bias:{' '}
                                 <span className={`font-medium px-1.5 py-0.5 rounded-full ${getBiasChipColor(publisher.allsidesBias.rating)}`}>
                                     {publisher.allsidesBias.rating}
                                 </span>
@@ -57,7 +57,7 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                                 imageUrl={meterFaceUrl}
                             />
                             <p className="text-xs text-slate-500 text-center leading-tight">
-                                MBFC:{' '}
+                                MBFC Bias:{' '}
                                 <span className={`font-medium px-1.5 py-0.5 rounded-full ${getBiasChipColor(publisher.mbfc.bias)}`}>
                                     {publisher.mbfc.bias}
                                 </span>
@@ -69,7 +69,7 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                     <div className="flex flex-col items-center gap-1.5 w-full max-w-xs mx-auto pt-2">
                         <CredibilityMeter value={publisher.mbfc.credibilityValue} max={8.0} />
                         <p className="text-xs text-slate-500">
-                            MBFC Reporting:{' '}
+                            MBFC Factual Reporting:{' '}
                             <span className={`font-medium px-1.5 py-0.5 rounded-full ${getFactualChipColor(publisher.mbfc.factualReporting)}`}>
                                 {publisher.mbfc.factualReporting}
                             </span>
