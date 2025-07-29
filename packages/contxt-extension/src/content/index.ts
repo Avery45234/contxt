@@ -22,6 +22,8 @@ function extractMetadata(article: ParseResult | null): ReadabilityMetadata | nul
 
 function analyzePage() {
     try {
+        const isBareDomain = window.location.pathname === '/' || window.location.pathname.startsWith('/index.');
+
         const sentiment = new Sentiment();
         const parser = new DOMParser();
         const doc = parser.parseFromString(document.documentElement.outerHTML, 'text/html');
@@ -45,14 +47,17 @@ function analyzePage() {
                 totalWords: article.textContent.split(/\s+/).length,
             };
 
-            const stats = textStatistics(article.textContent);
-            readabilityScore = {
-                gradeLevel: stats.fleschKincaidGradeLevel(),
-                wordCount: stats.wordCount(),
-                sentenceCount: stats.sentenceCount(),
-                wordsPerSentence: stats.averageWordsPerSentence(),
-                syllablesPerWord: stats.averageSyllablesPerWord(),
-            };
+            // Only perform readability analysis on pages that are not bare domains.
+            if (!isBareDomain) {
+                const stats = textStatistics(article.textContent);
+                readabilityScore = {
+                    gradeLevel: stats.fleschKincaidGradeLevel(),
+                    wordCount: stats.wordCount(),
+                    sentenceCount: stats.sentenceCount(),
+                    wordsPerSentence: stats.averageWordsPerSentence(),
+                    syllablesPerWord: stats.averageSyllablesPerWord(),
+                };
+            }
         }
 
         const message: ContentScriptMessage = {

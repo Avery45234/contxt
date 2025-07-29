@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { ReadabilityScore } from '../../lib/types';
 
 interface ReadabilityMeterProps {
-    score: ReadabilityScore;
+    score: ReadabilityScore | null;
 }
 
 const LEVELS = [
@@ -13,12 +13,27 @@ const LEVELS = [
 ];
 
 const ReadabilityMeter: FC<ReadabilityMeterProps> = ({ score }) => {
+    if (!score) {
+        return (
+            <div className="text-xs">
+                <div className="space-y-1.5">
+                    {LEVELS.map((level) => (
+                        <div key={level.name} className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-sm bg-slate-200"></div>
+                            <span className="font-medium text-slate-400">{level.name}</span>
+                        </div>
+                    ))}
+                </div>
+                <p className="mt-2 text-center text-slate-500 italic">Analysis requires a single article.</p>
+            </div>
+        );
+    }
+
     const { gradeLevel, wordCount, sentenceCount, wordsPerSentence, syllablesPerWord } = score;
     const activeLevel = LEVELS.find((level) => gradeLevel >= level.range[0] && gradeLevel <= level.range[1]);
 
     return (
         <div className="text-xs">
-            {/* The "Complexity Ladder" is always visible */}
             <div className="space-y-1.5">
                 {LEVELS.map((level) => {
                     const isActive = level.name === activeLevel?.name;
@@ -35,12 +50,11 @@ const ReadabilityMeter: FC<ReadabilityMeterProps> = ({ score }) => {
                 })}
             </div>
 
-            {/* The collapsible details section for statistics */}
             <details className="mt-2">
                 <summary className="flex items-center gap-1 cursor-pointer list-none text-slate-500 hover:text-slate-900 w-fit">
                     <svg
                         className="w-3 h-3 text-slate-500 transition-transform details-arrow"
-                        xmlns="http://www.w3.org/2000/svg"
+                        xmlns="http://www.w.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                     >

@@ -22,7 +22,7 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
     }
 
     const hasSentiment = content.headlineSentiment || content.contentSentiment;
-    const hasReadability = content.readabilityScore !== null;
+    const hasReadabilityData = content.readabilityScore !== undefined; // Check for presence, even if null
 
     return (
         <section className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
@@ -42,10 +42,10 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
                 </div>
             )}
 
-            {hasReadability && (
+            {hasReadabilityData && (
                 <div className="mb-4 pb-4 border-b border-slate-200">
                     <h3 className="text-base font-bold text-slate-700 mb-2">Readability Analysis</h3>
-                    <ReadabilityMeter score={content.readabilityScore!} />
+                    <ReadabilityMeter score={content.readabilityScore} />
                 </div>
             )}
 
