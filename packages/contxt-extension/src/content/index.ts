@@ -1,7 +1,7 @@
 import { Readability, ParseResult } from '@mozilla/readability';
 import Sentiment from 'sentiment';
 import textStatistics from 'text-statistics';
-import { ContentScriptMessage, ReadabilityMetadata, ReadabilityScore, SentimentResult } from '../lib/types.js';
+import { ContentScriptMessage, ReadabilityMetadata, ReadabilityScore, ReanalyzePageMessage, SentimentResult } from '../lib/types.js';
 
 const LOG_STYLE = 'background: #28a745; color: #ffffff; font-size: 12px; padding: 2px 5px; border-radius: 3px;';
 
@@ -74,8 +74,17 @@ function analyzePage() {
     }
 }
 
+// Initial analysis on first load
 if (document.readyState !== 'loading') {
     analyzePage();
 } else {
     document.addEventListener('DOMContentLoaded', analyzePage);
 }
+
+// Listen for re-analysis requests from the background script for SPA navigations
+chrome.runtime.onMessage.addListener((message: ReanalyzePageMessage) => {
+    if (message.type === 'RE_ANALYZE_PAGE') {
+        console.log('%c[contxt-cs] Re-analysis requested by background script.', LOG_STYLE);
+        analyzePage();
+    }
+});

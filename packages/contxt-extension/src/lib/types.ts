@@ -60,15 +60,18 @@ export interface TabContextResponse {
 
 // --- Messaging Types ---
 
+// From Content Script to Background
 export interface ContentScriptMessage {
     type: 'CONTENT_ANALYSIS_RESULT';
     payload: ContentAnalysisResult;
 }
 
+// From UI to Background
 export interface UiRequestMessage {
     type: 'GET_CURRENT_TAB_CONTEXT';
 }
 
+// From Background to UI
 export interface UiUpdateMessage {
     type: 'CONTEXT_UPDATED';
     payload: {
@@ -77,6 +80,12 @@ export interface UiUpdateMessage {
     };
 }
 
+// From Background to Content Script
+export interface ReanalyzePageMessage {
+    type: 'RE_ANALYZE_PAGE';
+}
+
+// Generic Log Message
 export interface LogMessage {
     type: 'LOG';
     payload: string;
