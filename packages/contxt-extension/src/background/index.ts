@@ -47,15 +47,23 @@ async function main() {
 
         console.log(`[contxt-bg] State updated for Tab ${tabId}:`, newContext);
 
+        let badgeCount = 0;
+        if (publisher) {
+            badgeCount += 1;
+        }
+        if (contentInfo.readabilityScore && contentInfo.contentSentiment) {
+            badgeCount += 2;
+        }
+
+        const badgeText = badgeCount > 0 ? String(badgeCount) : '';
+        await chrome.action.setBadgeText({ tabId, text: badgeText });
+        await chrome.action.setBadgeBackgroundColor({ tabId, color: '#FFFFFF' });
+        await chrome.action.setBadgeTextColor({ tabId, color: '#000000' });
+
         if (publisher) {
             await chrome.action.setIcon({ tabId, ...getIconPaths(publisher.allsidesBias.rating) });
-            const badgeText = newContext.content?.hasArticle ? '1' : '';
-            await chrome.action.setBadgeText({ tabId, text: badgeText });
-            await chrome.action.setBadgeBackgroundColor({ tabId, color: '#FFFFFF' });
-            await chrome.action.setBadgeTextColor({ tabId, color: '#000000' });
         } else {
             await chrome.action.setIcon({ tabId, ...getIconPaths('unknown') });
-            await chrome.action.setBadgeText({ tabId, text: '' });
         }
 
         await sendContextUpdate(tabId);
