@@ -24,15 +24,12 @@ This stack is responsible for compiling the source code and rendering the user i
 | **UI Framework** | **React** | The leading library for building component-based user interfaces. It allows us to structure the extension's UI into clean, reusable, and maintainable components. |
 | **Styling Framework** | **Tailwind CSS** | A utility-first CSS framework. Tailwind's Just-In-Time (JIT) compiler ensures that only the CSS that is actually used is included in the final build, resulting in a lean, performant, and highly maintainable stylesheet. This choice was made after rejecting MUI, which proved architecturally unsuitable due to unacceptable build complexity and bundle bloat for a lightweight extension. |
 
-## 4. Key Libraries & APIs (Planned)
+## 4. Key Analysis Libraries
 
-These third-party libraries and services are planned for integration to provide the core analysis features of the MVP.
+These third-party libraries are integrated to provide the core analysis features of the MVP. All analysis is performed locally on the client-side.
 
 | Component | Technology | Rationale |
 | :--- | :--- | :--- |
 | **Article Extraction** | **Mozilla Readability.js** | A robust, battle-tested library designed to extract the primary, readable content from any webpage. This is critical for reliably isolating article text. |
-| **Language Analysis** | **Sentiment.js** (or similar) | A lightweight, dependency-free JavaScript library for client-side sentiment analysis. Its small footprint is ideal for integration into a browser extension. |
-| **News Aggregation API** | **NewsData.io (Free Tier)** | The planned backend for the Story Comparison feature. Chosen for its generous free tier, which aligns with the project's "no ongoing costs" constraint. |
-
----
-This technical stack represents a lean, modern, and cohesive set of tools, proven to be stable and well-suited for building the `contxt` application efficiently and to a high standard of quality.
+| **Sentiment Analysis** | **Sentiment.js** | A lightweight, dependency-free JavaScript library for client-side sentiment analysis. Its small footprint is ideal for integration into a browser extension. |
+| **Readability Analysis** | **text-statistics** | A compact, dependency-free library for calculating linguistic complexity metrics, such as the Flesch-Kincaid grade level. |
