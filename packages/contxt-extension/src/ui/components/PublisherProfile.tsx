@@ -1,11 +1,15 @@
 import { FC } from 'react';
 import { Publisher } from '../../lib/types.js';
+import RadialGauge from './RadialGauge';
+import CredibilityMeter from './CredibilityMeter';
 
 interface PublisherProfileProps {
     publisher?: Publisher;
 }
 
 const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
+    const meterFaceUrl = chrome.runtime.getURL('icons/bias-meter-face.png');
+
     const getBiasChipColor = (rating: string) => {
         const r = rating.toLowerCase();
         if (r.includes('left')) return 'bg-blue-100 text-blue-800';
@@ -13,28 +17,72 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
         return 'bg-slate-200 text-slate-800';
     };
 
+    const getFactualChipColor = (rating: string) => {
+        const r = rating.toLowerCase();
+        if (r.includes('very high') || r.includes('high')) return 'bg-green-100 text-green-800';
+        if (r.includes('mixed')) return 'bg-yellow-100 text-yellow-800';
+        return 'bg-red-100 text-red-800';
+    };
+
+    const toTitleCase = (str: string) => {
+        return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase());
+    };
+
     return (
         <section className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
-            <h2 className="text-lg font-bold text-slate-700 mb-2">Publisher Analysis</h2>
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">Publisher Analysis</h2>
             {!publisher ? (
                 <p className="text-slate-500">This site is not currently in the contxt database.</p>
             ) : (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-4">
                     <h3 className="text-xl font-bold">{publisher.displayName}</h3>
-                    <div className="flex flex-row gap-2 items-center">
-            <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${getBiasChipColor(publisher.allsidesBias.rating)}`}>
-              AllSides: {publisher.allsidesBias.rating}
-            </span>
-                        <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${getBiasChipColor(publisher.mbfc.bias)}`}>
-              MBFC: {publisher.mbfc.bias}
-            </span>
+
+                    {/* Bias Visualization */}
+                    <div className="grid grid-cols-2 items-start gap-4">
+                        <div className="flex flex-col items-center gap-1.5">
+                            <RadialGauge
+                                value={publisher.allsidesBias.value}
+                                min={-6}
+                                max={6}
+                                imageUrl={meterFaceUrl}
+                            />
+                            <p className="text-xs text-slate-500 text-center leading-tight">
+                                AllSides Bias:{' '}
+                                <span
+                                    className={`font-medium px-1 py-0.5 rounded-full ${getBiasChipColor(publisher.allsidesBias.rating)}`}
+                                >
+                                    {toTitleCase(publisher.allsidesBias.rating)}
+                                </span>
+                            </p>
+                        </div>
+                        <div className="flex flex-col items-center gap-1.5">
+                            <RadialGauge
+                                value={publisher.mbfc.biasValue}
+                                min={-8.1}
+                                max={8.1}
+                                imageUrl={meterFaceUrl}
+                            />
+                            <p className="text-xs text-slate-500 text-center leading-tight">
+                                MBFC Bias:{' '}
+                                <span
+                                    className={`font-medium px-1 py-0.5 rounded-full ${getBiasChipColor(publisher.mbfc.bias)}`}
+                                >
+                                    {toTitleCase(publisher.mbfc.bias)}
+                                </span>
+                            </p>
+                        </div>
                     </div>
-                    <div className="text-sm text-slate-600 mt-2">
-                        <p>
-                            <strong>Factual Reporting:</strong> {publisher.mbfc.factualReporting}
-                        </p>
-                        <p>
-                            <strong>Credibility:</strong> {publisher.mbfc.credibility}
+
+                    {/* Credibility Visualization */}
+                    <div className="flex flex-col items-center gap-1.5 w-full max-w-xs mx-auto pt-2">
+                        <CredibilityMeter value={publisher.mbfc.credibilityValue} max={8.0} />
+                        <p className="text-xs text-slate-500">
+                            MBFC Factual Reporting:{' '}
+                            <span
+                                className={`font-medium px-1 py-0.5 rounded-full ${getFactualChipColor(publisher.mbfc.factualReporting)}`}
+                            >
+                                {toTitleCase(publisher.mbfc.factualReporting)}
+                            </span>
                         </p>
                     </div>
                 </div>

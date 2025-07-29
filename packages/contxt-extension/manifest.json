@@ -3,11 +3,17 @@
   "name": "contxt",
   "version": "0.1.0",
   "description": "Provides context for news articles.",
+  "icons": {
+    "16": "icons/icon-16-unknown.png",
+    "48": "icons/icon-48-unknown.png",
+    "128": "icons/icon-128-unknown.png"
+  },
   "permissions": [
     "storage",
     "activeTab",
     "scripting",
-    "sidePanel"
+    "sidePanel",
+    "webNavigation"
   ],
   "background": {
     "service_worker": "src/background/index.ts",
@@ -39,7 +45,9 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "publishers.json"
+        "publishers.json",
+        "icons/bias-meter-face.png",
+        "icons/contxt.svg"
       ],
       "matches": [
         "<all_urls>"

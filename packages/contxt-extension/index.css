@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+details[open] > summary .details-arrow {
+    transform: rotate(90deg);
+}
