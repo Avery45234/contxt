@@ -24,6 +24,10 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
         return 'bg-red-100 text-red-800';
     };
 
+    const toTitleCase = (str: string) => {
+        return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase());
+    };
+
     return (
         <section className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
             <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">Publisher Analysis</h2>
@@ -44,8 +48,10 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                             />
                             <p className="text-xs text-slate-500 text-center leading-tight">
                                 AllSides Bias:{' '}
-                                <span className={`font-medium px-1 py-0.5 rounded-full ${getBiasChipColor(publisher.allsidesBias.rating)}`}>
-                                    {publisher.allsidesBias.rating}
+                                <span
+                                    className={`font-medium px-1 py-0.5 rounded-full ${getBiasChipColor(publisher.allsidesBias.rating)}`}
+                                >
+                                    {toTitleCase(publisher.allsidesBias.rating)}
                                 </span>
                             </p>
                         </div>
@@ -58,8 +64,10 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                             />
                             <p className="text-xs text-slate-500 text-center leading-tight">
                                 MBFC Bias:{' '}
-                                <span className={`font-medium px-1 py-0.5 rounded-full ${getBiasChipColor(publisher.mbfc.bias)}`}>
-                                    {publisher.mbfc.bias}
+                                <span
+                                    className={`font-medium px-1 py-0.5 rounded-full ${getBiasChipColor(publisher.mbfc.bias)}`}
+                                >
+                                    {toTitleCase(publisher.mbfc.bias)}
                                 </span>
                             </p>
                         </div>
@@ -70,8 +78,10 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                         <CredibilityMeter value={publisher.mbfc.credibilityValue} max={8.0} />
                         <p className="text-xs text-slate-500">
                             MBFC Factual Reporting:{' '}
-                            <span className={`font-medium px-1 py-0.5 rounded-full ${getFactualChipColor(publisher.mbfc.factualReporting)}`}>
-                                {publisher.mbfc.factualReporting}
+                            <span
+                                className={`font-medium px-1 py-0.5 rounded-full ${getFactualChipColor(publisher.mbfc.factualReporting)}`}
+                            >
+                                {toTitleCase(publisher.mbfc.factualReporting)}
                             </span>
                         </p>
                     </div>

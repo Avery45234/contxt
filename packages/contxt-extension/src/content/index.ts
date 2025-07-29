@@ -1,7 +1,7 @@
 import { Readability, ParseResult } from '@mozilla/readability';
 import Sentiment from 'sentiment';
 import textStatistics from 'text-statistics';
-import { ContentScriptMessage, ReadabilityMetadata, SentimentResult } from '../lib/types.js';
+import { ContentScriptMessage, ReadabilityMetadata, ReadabilityScore, SentimentResult } from '../lib/types.js';
 
 const LOG_STYLE = 'background: #28a745; color: #ffffff; font-size: 12px; padding: 2px 5px; border-radius: 3px;';
 
@@ -30,7 +30,7 @@ function analyzePage() {
 
         let headlineSentiment: SentimentResult | null = null;
         let contentSentiment: SentimentResult | null = null;
-        let readabilityScore: number | null = null;
+        let readabilityScore: ReadabilityScore | null = null;
 
         if (article) {
             const headlineAnalysis: Sentiment.AnalysisResult = sentiment.analyze(article.title);
@@ -45,7 +45,14 @@ function analyzePage() {
                 totalWords: article.textContent.split(/\s+/).length,
             };
 
-            readabilityScore = textStatistics(article.textContent).fleschKincaidGradeLevel();
+            const stats = textStatistics(article.textContent);
+            readabilityScore = {
+                gradeLevel: stats.fleschKincaidGradeLevel(),
+                wordCount: stats.wordCount(),
+                sentenceCount: stats.sentenceCount(),
+                wordsPerSentence: stats.averageWordsPerSentence(),
+                syllablesPerWord: stats.averageSyllablesPerWord(),
+            };
         }
 
         const message: ContentScriptMessage = {

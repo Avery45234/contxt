@@ -36,13 +36,21 @@ export interface SentimentResult {
     totalWords: number;
 }
 
+export interface ReadabilityScore {
+    gradeLevel: number;
+    wordCount: number;
+    sentenceCount: number;
+    wordsPerSentence: number;
+    syllablesPerWord: number;
+}
+
 export interface ContentAnalysisResult {
     hasArticle: boolean;
     headline?: string;
     readability: ReadabilityMetadata | null;
     headlineSentiment: SentimentResult | null;
     contentSentiment: SentimentResult | null;
-    readabilityScore: number | null;
+    readabilityScore: ReadabilityScore | null;
 }
 
 export interface TabContextResponse {

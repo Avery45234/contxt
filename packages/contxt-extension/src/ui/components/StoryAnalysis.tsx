@@ -76,7 +76,7 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
             {hasReadability && (
                 <div className="mb-4 pb-4 border-b border-slate-200">
                     <h3 className="text-base font-bold text-slate-700 mb-2">Readability Analysis</h3>
-                    <ReadabilityMeter gradeLevel={content.readabilityScore!} />
+                    <ReadabilityMeter score={content.readabilityScore!} />
                 </div>
             )}
 
