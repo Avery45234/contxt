@@ -117,8 +117,12 @@ const App: FC = () => {
         <DebugFrame label="App Shell" colorClasses={COLORS.app} isActive={isInspectMode}>
             <div className="flex flex-col h-full w-[380px] bg-slate-100 text-slate-800">
                 <DebugFrame label="Header" colorClasses={COLORS.header} isActive={isInspectMode}>
-                    <header className="p-4 border-b border-slate-200">
-                        <h1 className="text-xl font-bold">contxt</h1>
+                    <header className="p-3 bg-white shadow-sm z-10">
+                        <img
+                            src={chrome.runtime.getURL('icons/contxt.svg')}
+                            alt="contxt"
+                            className="h-6"
+                        />
                     </header>
                 </DebugFrame>
 

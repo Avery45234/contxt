@@ -40,7 +40,8 @@
     {
       "resources": [
         "publishers.json",
-        "icons/bias-meter-face.png"
+        "icons/bias-meter-face.png",
+        "icons/contxt.svg"
       ],
       "matches": [
         "<all_urls>"
