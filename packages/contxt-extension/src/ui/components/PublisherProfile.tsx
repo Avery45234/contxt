@@ -34,8 +34,8 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                     <h3 className="text-xl font-bold">{publisher.displayName}</h3>
 
                     {/* Bias Visualization */}
-                    <div className="flex justify-around items-start gap-4">
-                        <div className="flex flex-col items-center gap-1.5 w-32">
+                    <div className="grid grid-cols-2 items-start gap-4">
+                        <div className="flex flex-col items-center gap-1.5">
                             <RadialGauge
                                 value={publisher.allsidesBias.value}
                                 min={-6}
@@ -44,12 +44,12 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                             />
                             <p className="text-xs text-slate-500 text-center leading-tight">
                                 AllSides Bias:{' '}
-                                <span className={`font-medium px-1.5 py-0.5 rounded-full ${getBiasChipColor(publisher.allsidesBias.rating)}`}>
+                                <span className={`font-medium px-1 py-0.5 rounded-full ${getBiasChipColor(publisher.allsidesBias.rating)}`}>
                                     {publisher.allsidesBias.rating}
                                 </span>
                             </p>
                         </div>
-                        <div className="flex flex-col items-center gap-1.5 w-32">
+                        <div className="flex flex-col items-center gap-1.5">
                             <RadialGauge
                                 value={publisher.mbfc.biasValue}
                                 min={-8.1}
@@ -58,7 +58,7 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                             />
                             <p className="text-xs text-slate-500 text-center leading-tight">
                                 MBFC Bias:{' '}
-                                <span className={`font-medium px-1.5 py-0.5 rounded-full ${getBiasChipColor(publisher.mbfc.bias)}`}>
+                                <span className={`font-medium px-1 py-0.5 rounded-full ${getBiasChipColor(publisher.mbfc.bias)}`}>
                                     {publisher.mbfc.bias}
                                 </span>
                             </p>
@@ -70,7 +70,7 @@ const PublisherProfile: FC<PublisherProfileProps> = ({ publisher }) => {
                         <CredibilityMeter value={publisher.mbfc.credibilityValue} max={8.0} />
                         <p className="text-xs text-slate-500">
                             MBFC Factual Reporting:{' '}
-                            <span className={`font-medium px-1.5 py-0.5 rounded-full ${getFactualChipColor(publisher.mbfc.factualReporting)}`}>
+                            <span className={`font-medium px-1 py-0.5 rounded-full ${getFactualChipColor(publisher.mbfc.factualReporting)}`}>
                                 {publisher.mbfc.factualReporting}
                             </span>
                         </p>
