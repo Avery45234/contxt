@@ -10,12 +10,10 @@ export interface MbfcData {
     credibility: string;
     credibilityValue: number;
     traffic: string;
-    mediaType: string;
-    country: string;
 }
 
 export interface Publisher {
-    domain: string;
+    domains: string[];
     displayName: string;
     allsidesBias: AllSidesBias;
     mbfc: MbfcData;

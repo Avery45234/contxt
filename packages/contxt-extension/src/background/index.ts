@@ -38,8 +38,8 @@ async function main() {
     }
 
     async function handleStateUpdate(tabId: number, url: string, contentInfo: ContentAnalysisResult) {
-        const hostname = new URL(url).hostname;
-        const publisher = publishers.find((p) => hostname === p.domain || hostname.endsWith(`.${p.domain}`));
+        const hostname = new URL(url).hostname.replace(/^www\./, '');
+        const publisher = publishers.find((p) => p.domains.some((domain) => hostname === domain));
 
         const currentContext = tabContextCache.get(tabId) ?? {};
         const newContext: TabContextResponse = { ...currentContext, publisher, content: contentInfo };
@@ -98,13 +98,10 @@ async function main() {
         const newState = !currentState;
         windowPanelState.set(windowId, newState);
 
-        // If opening, open the panel IMMEDIATELY to respect the user gesture time limit.
         if (newState) {
             await chrome.sidePanel.open({ windowId });
         }
 
-        // Now, perform the background task of syncing the enabled state across all tabs in the window.
-        // This can happen after the panel is open.
         const tabsInWindow = await chrome.tabs.query({ windowId });
         for (const t of tabsInWindow) {
             if (t.id) {
