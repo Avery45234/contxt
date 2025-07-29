@@ -11,6 +11,7 @@ const App: FC = () => {
     const [myWindowId, setMyWindowId] = useState<number | undefined>(undefined);
     const [activeTabId, setActiveTabId] = useState<number | undefined>(undefined);
     const [isInspectMode, setIsInspectMode] = useState(false);
+    const [version, setVersion] = useState('');
 
     const log = useCallback((message: string) => {
         try {
@@ -20,6 +21,11 @@ const App: FC = () => {
             // Suppress "Extension context invalidated" errors when panel closes.
             // This is an expected condition, not a true error.
         }
+    }, []);
+
+    useEffect(() => {
+        const manifest = chrome.runtime.getManifest();
+        setVersion(manifest.version);
     }, []);
 
     const fetchContextForTab = useCallback(
@@ -147,7 +153,7 @@ const App: FC = () => {
                 </DebugFrame>
 
                 <DebugFrame label="Footer" colorClasses={COLORS.footer} isActive={isInspectMode}>
-                    <footer className="p-2 text-center border-t border-slate-200">
+                    <footer className="flex justify-between items-center px-8 py-2 text-center border-t border-slate-200">
                         <p className="text-xs text-slate-500">
                             Disclaimer. Ratings from{' '}
                             <a href="https://www.allsides.com/" target="_blank" rel="noopener" className="underline hover:text-blue-600">
@@ -159,6 +165,7 @@ const App: FC = () => {
                             </a>
                             .
                         </p>
+                        {version && <p className="text-xs text-slate-400">v{version}</p>}
                     </footer>
                 </DebugFrame>
             </div>
