@@ -1,6 +1,7 @@
 import { FC, useState } from 'react';
 import { ContentAnalysisResult } from '../../lib/types.js';
 import SentimentMeter from './SentimentMeter';
+import ReadabilityMeter from './ReadabilityMeter';
 
 interface StoryAnalysisProps {
     content?: ContentAnalysisResult;
@@ -52,13 +53,14 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
     };
 
     const hasSentiment = content.headlineSentiment || content.contentSentiment;
+    const hasReadability = content.readabilityScore !== null;
 
     return (
         <section className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
             <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">Page Content Analysis</h2>
 
             {hasSentiment && (
-                <div className="mb-4">
+                <div className="mb-4 pb-4 border-b border-slate-200">
                     <h3 className="text-base font-bold text-slate-700 mb-2">Sentiment Analysis</h3>
                     <div className="space-y-3">
                         {content.headlineSentiment && (
@@ -68,6 +70,13 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
                             <SentimentMeter label="Content Sentiment" result={content.contentSentiment} />
                         )}
                     </div>
+                </div>
+            )}
+
+            {hasReadability && (
+                <div className="mb-4 pb-4 border-b border-slate-200">
+                    <h3 className="text-base font-bold text-slate-700 mb-2">Readability Analysis</h3>
+                    <ReadabilityMeter gradeLevel={content.readabilityScore!} />
                 </div>
             )}
 

@@ -20,3 +20,11 @@ declare module '@mozilla/readability' {
         dir: 'ltr' | 'rtl';
     }
 }
+
+// Provides a manual type declaration for text-statistics.
+declare module 'text-statistics' {
+    export default function textStatistics(text: string): {
+        fleschKincaidGradeLevel(): number;
+        [key: string]: any;
+    };
+}

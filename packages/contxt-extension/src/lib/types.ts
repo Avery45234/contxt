@@ -44,6 +44,7 @@ export interface ContentAnalysisResult {
     readability: ReadabilityMetadata | null;
     headlineSentiment: SentimentResult | null;
     contentSentiment: SentimentResult | null;
+    readabilityScore: number | null;
 }
 
 export interface TabContextResponse {
