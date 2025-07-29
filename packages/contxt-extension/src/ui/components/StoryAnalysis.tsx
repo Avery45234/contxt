@@ -62,10 +62,10 @@ const StoryAnalysis: FC<StoryAnalysisProps> = ({ content }) => {
                     <h3 className="text-base font-bold text-slate-700 mb-2">Sentiment Analysis</h3>
                     <div className="space-y-3">
                         {content.headlineSentiment && (
-                            <SentimentMeter label="Headline Sentiment" score={content.headlineSentiment.comparative} />
+                            <SentimentMeter label="Headline Sentiment" result={content.headlineSentiment} />
                         )}
                         {content.contentSentiment && (
-                            <SentimentMeter label="Content Sentiment" score={content.contentSentiment.comparative} />
+                            <SentimentMeter label="Content Sentiment" result={content.contentSentiment} />
                         )}
                     </div>
                 </div>

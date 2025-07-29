@@ -32,6 +32,10 @@ export interface ReadabilityMetadata {
 export interface SentimentResult {
     score: number;
     comparative: number;
+    words: string[];
+    positive: string[];
+    negative: string[];
+    totalWords: number;
 }
 
 export interface ContentAnalysisResult {

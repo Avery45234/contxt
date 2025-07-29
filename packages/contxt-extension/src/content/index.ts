@@ -31,8 +31,17 @@ function analyzePage() {
         let contentSentiment: SentimentResult | null = null;
 
         if (article) {
-            headlineSentiment = sentiment.analyze(article.title);
-            contentSentiment = sentiment.analyze(article.textContent);
+            const headlineAnalysis: Sentiment.AnalysisResult = sentiment.analyze(article.title);
+            headlineSentiment = {
+                ...headlineAnalysis,
+                totalWords: article.title.split(/\s+/).length,
+            };
+
+            const contentAnalysis: Sentiment.AnalysisResult = sentiment.analyze(article.textContent);
+            contentSentiment = {
+                ...contentAnalysis,
+                totalWords: article.textContent.split(/\s+/).length,
+            };
         }
 
         const message: ContentScriptMessage = {
