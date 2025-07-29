@@ -21,9 +21,18 @@ export interface Publisher {
     mbfc: MbfcData;
 }
 
+export interface ReadabilityMetadata {
+    title: string;
+    byline: string | null;
+    length: number;
+    excerpt: string;
+    siteName: string | null;
+}
+
 export interface ContentAnalysisResult {
     hasArticle: boolean;
     headline?: string;
+    readability: ReadabilityMetadata | null;
 }
 
 export interface TabContextResponse {
