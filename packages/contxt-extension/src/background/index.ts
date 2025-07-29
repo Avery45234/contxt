@@ -94,13 +94,24 @@ async function main() {
     });
 
     // --- Event Listeners ---
-    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-        if (changeInfo.status === 'complete' && tab.url?.startsWith('http')) {
-            console.log(`[contxt-bg] Tab ${tabId} updated. Requesting re-analysis.`);
-            chrome.tabs.sendMessage(tabId, { type: 'RE_ANALYZE_PAGE' }).catch(() => {
-                // This can fail if the content script is not injected yet, which is fine.
-                // The content script's own DOMContentLoaded listener will handle the initial analysis.
-            });
+    const requestAnalysis = (tabId: number) => {
+        chrome.tabs.sendMessage(tabId, { type: 'RE_ANALYZE_PAGE' }).catch(() => {
+            // This can fail if the content script is not injected yet, which is fine.
+            // The content script's own DOMContentLoaded listener will handle the initial analysis.
+        });
+    };
+
+    chrome.webNavigation.onCompleted.addListener((details) => {
+        if (details.frameId === 0 && details.url.startsWith('http')) {
+            console.log(`[contxt-bg] Nav complete in tab ${details.tabId}. Requesting analysis.`);
+            requestAnalysis(details.tabId);
+        }
+    });
+
+    chrome.webNavigation.onHistoryStateUpdated.addListener((details) => {
+        if (details.frameId === 0 && details.url.startsWith('http')) {
+            console.log(`[contxt-bg] History state updated in tab ${details.tabId}. Requesting analysis.`);
+            requestAnalysis(details.tabId);
         }
     });
 
