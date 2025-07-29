@@ -118,14 +118,14 @@ const App: FC = () => {
             <div className="flex flex-col h-full w-[380px] bg-slate-100 text-slate-800">
                 <DebugFrame label="Header" colorClasses={COLORS.header} isActive={isInspectMode}>
                     <header className="flex items-center gap-2 p-3 bg-white shadow-sm z-10">
+                        <span className="text-sm font-light text-slate-600 tracking-wider">
+                            Clarity through
+                        </span>
                         <img
                             src={chrome.runtime.getURL('icons/contxt.svg')}
                             alt="contxt"
                             className="h-3"
                         />
-                        <span className="text-xs font-light text-slate-500 tracking-wider">
-                            Clarity through context.
-                        </span>
                     </header>
                 </DebugFrame>
 
