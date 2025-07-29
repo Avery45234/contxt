@@ -121,7 +121,7 @@ const App: FC = () => {
                         <img
                             src={chrome.runtime.getURL('icons/contxt.svg')}
                             alt="contxt"
-                            className="h-6"
+                            className="h-3"
                         />
                     </header>
                 </DebugFrame>
